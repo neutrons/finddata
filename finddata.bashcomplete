@@ -2,7 +2,8 @@ _finddata()
 {
   COMPREPLY=()
 
-  local cur prev
+  local cur prev prog
+  prog="${COMP_WORDS[0]}"
   cur="${COMP_WORDS[COMP_CWORD]}"
   prev="${COMP_WORDS[COMP_CWORD-1]}"
 
@@ -10,7 +11,7 @@ _finddata()
   opts="-h --help -l --loglevel -v --version"
 
   local instruments
-  instruments="nom NOM vis VIZ"
+  instruments=`${prog} -- instruments`
 
   # only one word means that we should show everything
   if [[ ${COMP_CWORD} == 1 ]] ; then
@@ -19,7 +20,9 @@ _finddata()
   fi
 
   if [[ "-l --loglevel" =~ ${prev} ]] ; then
-    COMPREPLY=( $( compgen -W "WARN INFO DEBUG warn info debug" -- $cur ) )
+    local levels
+    levels=`${prog} -- loglevels`
+    COMPREPLY=( $( compgen -W  "${levels}" -- $cur ) )
     return 0
   fi
 
@@ -35,18 +38,9 @@ _finddata()
     return 0
   fi
 
-#  case "$cur" in
-#    -*)
-#    COMPREPLY=( $( compgen -W '-h --help -l --loglevel -v --version' -- $cur ) );;
-##   Generate the completion matches and load them into $COMPREPLY array.
-##   xx) May add more cases here.
-##   yy)
-##   zz)
-#  esac
-
   # default is to return everything
   COMPREPLY=( $( compgen -W "${instruments} ${opts}" -- $cur ) )
   return 0
 }
 
-complete -F _finddata ./finddata
+complete -F _finddata finddata

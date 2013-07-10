@@ -1,27 +1,47 @@
 #!/usr/bin/env python
-
 import logging
 import os
 import sys
 import urllib
 import xml.dom.minidom
 
-BASE_URL = 'http://icat.sns.gov:8080/icat-rest-ws/datafile/filename/'
+# finddata version
 __version__ = "0.1.0"
+
+# the endpoint for icat v4
+BASE_URL = 'http://icat.sns.gov:8080/icat-rest-ws/datafile/filename/'
+
+# list of known instruments
 INSTR = ['NOM', 'BSS', 'SNAP', 'REF_M', 'REF_L', 'CNCS', 'EQSANS', 'VULCAN',
          'CORELLI', 'PG3', 'MANDI', 'TOPAZ', 'HYS', 'HYSA', 'VIS', 'SEQ',
          'ARCS', 'VENUS']
 
-class InstrCompleter:
-    def __init__(self):
-        self.instr_options = [instr.lower() for instr in INSTR]
-        self.instr_options.extend(INSTR)
+# list of log levels
+LOGLEVELS = ["DEBUG", "INFO", "WARNING"]
 
-    def __call__(self, pwd, line, point, prefix, suffix):
-        print "__call__", (pwd, line, point, prefix, suffix)
-        return self.instr_options
+def __bashOptions(keyword):
+    """
+    Helper function to aid in bash completion.
+    
+    @param keyword The type of documentation to give out options for
+    """
+    if keyword == "instruments":
+        options = [instr.lower() for instr in INSTR]
+        options.extend(INSTR)
+        print " ".join(options)
+    elif keyword == "loglevels":
+        options = [level.lower() for level in LOGLEVELS]
+        options.extend(LOGLEVELS)
+        print " ".join(options)
 
 def procLocations(locations):
+    """
+    Turn a list of xml nodes into a list of paths. This only returns
+    paths for files that pass os.path.exists.
+
+    @param locations The xml node that contains the locations
+    @returns The list of files. The list is empty if none are found.
+    """
     logging.debug("starting with %d locations" % len(locations))
     str_locs = []
 
@@ -42,7 +62,14 @@ def procLocations(locations):
 
     return result
 
-def askIcat(url):
+def askIcat(filename):
+    """
+    Ping ICAT for the locations that the file might be at and convert them
+    into usable paths.
+
+    @return The first path that works (as suggested by ICAT) or None.
+    """
+    url = BASE_URL + filename
     logging.info("trying " + url)
 
     # get the document
@@ -59,18 +86,20 @@ def askIcat(url):
 
     logging.info("found locations[%d]: %s" % (len(locations), str(locations)))
 
-    if len(locations) > 0:
+    if len(locations) > 0: # always return the first one
         return locations[0]
     else:
         return None
 
 def findfile(instr, run):
-    instr = instr.upper()
-    run = str(run)
+    """
+    Find the specified run.
+    """
+    run = str(run) # should come in as an integer
 
     # try pre-ADARA name
     shortname = instr+"_"+run+"_event.nxs"
-    filename = askIcat(BASE_URL+shortname)
+    filename = askIcat(shortname)
     if filename is None:
         logging.info("failed to find pre-ADARA file: " + shortname)
     else:
@@ -78,7 +107,7 @@ def findfile(instr, run):
 
     # try ADARA name
     shortname = instr+"_"+run+".nxs.h5"
-    filename = askIcat(BASE_URL+shortname)
+    filename = askIcat(shortname)
     if filename is None:
         logging.info("failed to find ADARA file: " + shortname)
     else:
@@ -93,32 +122,45 @@ if __name__ == "__main__":
     parser = optparse.OptionParser(description="Find data files using ICAT",
                                    usage="%prog [options] <instr> <runnumber>")
     parser.add_option("-l", "--loglevel", dest="loglevel", default="WARNING",
-                      help="Specify the log level (DEBUG, INFO, WARNING)")
+                    help="Specify the log level (" + ", ".join(LOGLEVELS)+ ")")
     parser.add_option("-v", "--version", dest="version", action="store_true",
                       help="Print the version information and exit")
 
     # parse the command line
     (options, args) = parser.parse_args()
-    print 'opts', options
-    print 'args', args
-
-    if options.version:
-        print "finddata version " + __version__
-        sys.exit(0)
-
-    # verify that both instrument and runnumber were supplied
-    if len(args) != 2:
-        parser.error("Got %d arguments. Expecting instrument and run number" % len(args))
-    (instr, run) = args
-    instr = instr.upper()
-    if not instr in INSTR:
-        parser.error("Unknown instrument '%s' %s" % (instr, str(INSTR)))
 
     # setup logging
     options.loglevel = options.loglevel.upper()
     options.loglevel = getattr(logging, options.loglevel.upper(),
                                logging.WARNING)
-    logging.basicConfig(level=options.loglevel)
+    logging.basicConfig(format='%(levelname)s:%(message)s',
+                        level=options.loglevel)
+
+    # log the options and arguments
+    logging.debug('opts ' + str(options))
+    logging.debug('args ' + str(args))
+
+    # if they want the version just give it back and exit
+    if options.version:
+        print "finddata version " + __version__
+        sys.exit(0)
+
+    # hidden options to help out bash completion
+    if len(args) == 1 and args[0] in ["instruments", "loglevels"]:
+        __bashOptions(args[0])
+        sys.exit(0)
+
+    # verify that both instrument and runnumber were supplied
+    if len(args) != 2:
+        parser.error("Got %d arguments. Expecting instrument and run number" % len(args))
+    (instr, runnumber) = args
+    instr = instr.upper()
+    if not instr in INSTR:
+        parser.error("Unknown instrument '%s' %s" % (instr, str(INSTR)))
+    try:
+        runnumber = int(runnumber)
+    except ValueError, e:
+        parser.error("Invalid run number: " + e.message)
 
     # get the file
-    print findfile(args[0], args[1])
+    print findfile(instr, runnumber)

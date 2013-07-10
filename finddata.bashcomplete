@@ -1,0 +1,52 @@
+_finddata()
+{
+  COMPREPLY=()
+
+  local cur prev
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+  local opts
+  opts="-h --help -l --loglevel -v --version"
+
+  local instruments
+  instruments="nom NOM vis VIZ"
+
+  # only one word means that we should show everything
+  if [[ ${COMP_CWORD} == 1 ]] ; then
+    COMPREPLY=( $( compgen -W "${instruments} ${opts}" -- $cur ) )
+    return 0
+  fi
+
+  if [[ "-l --loglevel" =~ ${prev} ]] ; then
+    COMPREPLY=( $( compgen -W "WARN INFO DEBUG warn info debug" -- $cur ) )
+    return 0
+  fi
+
+  # dash means just deal with help
+  if [[ ${cur} == -* ]] ; then
+    COMPREPLY=( $( compgen -W "${opts}" -- $cur ) )
+    return 0
+  fi
+
+  # do nothing if the instrument name is already given
+  if [[ "${instruments}" =~ "${prev}" ]] ; then
+    #COMPREPLY=( $( compgen -W "${opts}" -- $cur ) )
+    return 0
+  fi
+
+#  case "$cur" in
+#    -*)
+#    COMPREPLY=( $( compgen -W '-h --help -l --loglevel -v --version' -- $cur ) );;
+##   Generate the completion matches and load them into $COMPREPLY array.
+##   xx) May add more cases here.
+##   yy)
+##   zz)
+#  esac
+
+  # default is to return everything
+  COMPREPLY=( $( compgen -W "${instruments} ${opts}" -- $cur ) )
+  return 0
+}
+
+complete -F _finddata ./finddata

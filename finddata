@@ -1,0 +1,124 @@
+#!/usr/bin/env python
+
+import logging
+import os
+import sys
+import urllib
+import xml.dom.minidom
+
+BASE_URL = 'http://icat.sns.gov:8080/icat-rest-ws/datafile/filename/'
+__version__ = "0.1.0"
+INSTR = ['NOM', 'BSS', 'SNAP', 'REF_M', 'REF_L', 'CNCS', 'EQSANS', 'VULCAN',
+         'CORELLI', 'PG3', 'MANDI', 'TOPAZ', 'HYS', 'HYSA', 'VIS', 'SEQ',
+         'ARCS', 'VENUS']
+
+class InstrCompleter:
+    def __init__(self):
+        self.instr_options = [instr.lower() for instr in INSTR]
+        self.instr_options.extend(INSTR)
+
+    def __call__(self, pwd, line, point, prefix, suffix):
+        print "__call__", (pwd, line, point, prefix, suffix)
+        return self.instr_options
+
+def procLocations(locations):
+    logging.debug("starting with %d locations" % len(locations))
+    str_locs = []
+
+    # convert nodes to strings
+    for location in locations:
+        for node in location.childNodes:
+            if node.nodeType == node.TEXT_NODE:
+                str_locs.append(str(node.data))
+                break
+    logging.debug("converted %d locations to strings" % len(str_locs))
+
+    # see what is acually readible by the user
+    result = []
+    for location in str_locs:
+        if os.path.exists(location):
+            result.append(location)
+    logging.debug("%d locations exist" % len(result))
+
+    return result
+
+def askIcat(url):
+    logging.info("trying " + url)
+
+    # get the document
+    handle = urllib.urlopen(url)
+    doc =  handle.read()
+    logging.debug("DOC:" + doc)
+
+    # parse the xml
+    doc = xml.dom.minidom.parseString(doc)
+
+    # convert to actual locations
+    locations = doc.getElementsByTagName("locations")[0]
+    locations = procLocations(locations.childNodes)
+
+    logging.info("found locations[%d]: %s" % (len(locations), str(locations)))
+
+    if len(locations) > 0:
+        return locations[0]
+    else:
+        return None
+
+def findfile(instr, run):
+    instr = instr.upper()
+    run = str(run)
+
+    # try pre-ADARA name
+    shortname = instr+"_"+run+"_event.nxs"
+    filename = askIcat(BASE_URL+shortname)
+    if filename is None:
+        logging.info("failed to find pre-ADARA file: " + shortname)
+    else:
+        return filename
+
+    # try ADARA name
+    shortname = instr+"_"+run+".nxs.h5"
+    filename = askIcat(BASE_URL+shortname)
+    if filename is None:
+        logging.info("failed to find ADARA file: " + shortname)
+    else:
+        return filename
+
+    # give up
+    raise RuntimeError("Failed to find data for %s %s" % (instr, run))
+
+if __name__ == "__main__":
+    # set up optparse
+    import optparse # deprecated since v2.7 and should switch to argparse
+    parser = optparse.OptionParser(description="Find data files using ICAT",
+                                   usage="%prog [options] <instr> <runnumber>")
+    parser.add_option("-l", "--loglevel", dest="loglevel", default="WARNING",
+                      help="Specify the log level (DEBUG, INFO, WARNING)")
+    parser.add_option("-v", "--version", dest="version", action="store_true",
+                      help="Print the version information and exit")
+
+    # parse the command line
+    (options, args) = parser.parse_args()
+    print 'opts', options
+    print 'args', args
+
+    if options.version:
+        print "finddata version " + __version__
+        sys.exit(0)
+
+    # verify that both instrument and runnumber were supplied
+    if len(args) != 2:
+        parser.error("Got %d arguments. Expecting instrument and run number" % len(args))
+    (instr, run) = args
+    instr = instr.upper()
+    if not instr in INSTR:
+        parser.error("Unknown instrument '%s' %s" % (instr, str(INSTR)))
+
+    # setup logging
+    options.loglevel = options.loglevel.upper()
+    options.loglevel = getattr(logging, options.loglevel.upper(),
+                               logging.WARNING)
+    logging.basicConfig(level=options.loglevel)
+
+    # get the file
+    print findfile(args[0], args[1])

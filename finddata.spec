@@ -1,41 +1,41 @@
-Name:           
-Version:        
+Name:           finddata
+Version:        0.1.0
 Release:        1%{?dist}
-Summary:        
+Summary:        Find data files using ICAT
 
-Group:          
-License:        
-URL:            
-Source0:        
+License:        The MIT License (MIT)
+URL:            http://github.com/peterfpeterson/finddata/
+Source:	        %{name}.tar.gz
+BuildArch:      noarch
 
-BuildRequires:  
-Requires:       
+Requires:       python
+Requires:       bash
+Requires:       bash-completion
 
 %description
-
+This package uses ICAT4 at SNS to find NeXus files.
 
 %prep
-%setup -q
-
+%setup -n %{name}
 
 %build
-%configure
-make %{?_smp_mflags}
-
+exit 0
 
 %install
 rm -rf $RPM_BUILD_ROOT
-make install DESTDIR=$RPM_BUILD_ROOT
-
+mkdir -p %{buildroot}%{_bindir}
+install -m 755 %{_builddir}/%{name}/usr/bin/finddata %{buildroot}%{_bindir}/finddata
+mkdir -p %{buildroot}%{_sysconfdir}/bash_completion.d
+install -m 644 %{_builddir}/%{name}/etc/bash_completion.d/finddata.bashcomplete %{buildroot}%{_sysconfdir}/bash_completion.d/finddata.bashcomplete
 
 %clean
-rm -rf $RPM_BUILD_ROOT
-
+exit 0
 
 %files
 %defattr(-,root,root,-)
-%doc
-
-
+%doc README.md
+%doc LICENSE.txt
+%{_bindir}/finddata
+%{_sysconfdir}/bash_completion.d/finddata.bashcomplete
 
 %changelog

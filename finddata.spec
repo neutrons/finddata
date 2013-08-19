@@ -24,9 +24,9 @@ exit 0
 %install
 rm -rf $RPM_BUILD_ROOT
 mkdir -p %{buildroot}%{_bindir}
-install -m 755 %{_builddir}/%{name}/usr/bin/finddata %{buildroot}%{_bindir}/finddata
+install -m 755 %{_builddir}/%{name}/finddata %{buildroot}%{_bindir}/finddata
 mkdir -p %{buildroot}%{_sysconfdir}/bash_completion.d
-install -m 644 %{_builddir}/%{name}/etc/bash_completion.d/finddata.bashcomplete %{buildroot}%{_sysconfdir}/bash_completion.d/finddata.bashcomplete
+install -m 644 %{_builddir}/%{name}/finddata.bashcomplete %{buildroot}%{_sysconfdir}/bash_completion.d/finddata.bashcomplete
 
 %clean
 exit 0

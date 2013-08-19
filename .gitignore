@@ -1,5 +1,8 @@
 *.py[cod]
 
+# place the rpm gets built from
+tarsrc
+
 # C extensions
 *.so
 

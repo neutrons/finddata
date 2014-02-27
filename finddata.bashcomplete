@@ -8,7 +8,7 @@ _finddata()
   prev="${COMP_WORDS[COMP_CWORD-1]}"
 
   local opts
-  opts="-h --help -l --loglevel -v --version"
+  opts="-h --help -l --loglevel -v --version --filename"
 
   local instruments
   instruments=`${prog} -- instruments`
@@ -23,6 +23,10 @@ _finddata()
     local levels
     levels=`${prog} -- loglevels`
     COMPREPLY=( $( compgen -W  "${levels}" -- $cur ) )
+    return 0
+  fi
+
+  if [[ "-f --filename" =~ ${prev} ]] ; then
     return 0
   fi
 

@@ -6,7 +6,7 @@ import urllib
 import xml.dom.minidom
 
 # finddata version
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 # the endpoint for icat v4
 BASE_URL = 'http://icat.sns.gov:8080/icat-rest-ws/datafile/filename/'
@@ -125,6 +125,8 @@ if __name__ == "__main__":
                     help="Specify the log level (" + ", ".join(LOGLEVELS)+ ")")
     parser.add_option("-v", "--version", dest="version", action="store_true",
                       help="Print the version information and exit")
+    parser.add_option("-f", "--filename", dest="filename",
+                      help="look for a specific filename")
 
     # parse the command line
     (options, args) = parser.parse_args()
@@ -144,6 +146,16 @@ if __name__ == "__main__":
     if options.version:
         print "finddata version " + __version__
         sys.exit(0)
+
+    # if 
+    if options.filename:
+        filename = askIcat(options.filename)
+        if filename is not None:
+            print filename
+            sys.exit(0)
+        else:
+            print "Failed to find file", filename
+            sys.exit(1)
 
     # hidden options to help out bash completion
     if len(args) == 1 and args[0] in ["instruments", "loglevels"]:

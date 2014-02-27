@@ -175,4 +175,7 @@ if __name__ == "__main__":
         parser.error("Invalid run number: " + e.message)
 
     # get the file
-    print findfile(instr, runnumber)
+    try:
+        print findfile(instr, runnumber)
+    except RuntimeError, e:
+        print e

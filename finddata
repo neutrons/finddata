@@ -34,6 +34,37 @@ def __bashOptions(keyword):
         options.extend(LOGLEVELS)
         print " ".join(options)
 
+def parseInt(number):
+    try:
+        return int(number)
+    except ValueError, e:
+        logging.info("Invalid run numbers: %s" % str(e))
+
+    return 0
+
+def procNumbers(numbers):
+    # simply see if it is an integer
+    try:
+        return [int(numbers)]
+    except ValueError:
+        pass
+    
+    # split on commas
+    result = []
+    for item in numbers.split(','):
+        # if there is a dash then it is a range
+        if "-" in item:
+            item = [parseInt(i) for i in item.split("-")]
+            item.sort()
+            if item[0]:
+                result.extend(range(item[0], item[1]+1))
+        else:
+            item = parseInt(item)
+            if item:
+                result.append(item)
+
+    return result
+
 def procLocations(locations):
     """
     Turn a list of xml nodes into a list of paths. This only returns
@@ -120,9 +151,10 @@ if __name__ == "__main__":
     # set up optparse
     import optparse # deprecated since v2.7 and should switch to argparse
     parser = optparse.OptionParser(description="Find data files using ICAT",
-                                   usage="%prog [options] <instr> <runnumber>")
+                                   usage="%prog [options] <instr> <runnumbers>")
     parser.add_option("-l", "--loglevel", dest="loglevel", default="WARNING",
-                    help="Specify the log level (" + ", ".join(LOGLEVELS)+ ")")
+                      help="Specify the log level (" \
+                          + ", ".join(LOGLEVELS)+ ")")
     parser.add_option("-v", "--version", dest="version", action="store_true",
                       help="Print the version information and exit")
     parser.add_option("-f", "--filename", dest="filename",
@@ -147,7 +179,7 @@ if __name__ == "__main__":
         print "finddata version " + __version__
         sys.exit(0)
 
-    # if 
+    # if the filename is specified just search and be done
     if options.filename:
         filename = askIcat(options.filename)
         if filename is not None:
@@ -163,19 +195,23 @@ if __name__ == "__main__":
         sys.exit(0)
 
     # verify that both instrument and runnumber were supplied
-    if len(args) != 2:
-        parser.error("Got %d arguments. Expecting instrument and run number" % len(args))
-    (instr, runnumber) = args
-    instr = instr.upper()
+    if len(args) < 2:
+        msg = "Got %d argument. Expecting instrument and run number" % len(args)
+        msg += " or --filename FILENAME"
+        parser.error(msg)
+    instr = args[0].upper()
     if not instr in INSTR:
         parser.error("Unknown instrument '%s' %s" % (instr, str(INSTR)))
-    try:
-        runnumber = int(runnumber)
-    except ValueError, e:
-        parser.error("Invalid run number: " + e.message)
+    runnumbers = []
+    for arg in args[1:]:
+        runnumbers.extend(procNumbers(arg))
+
+    if len(runnumbers) <= 0:
+        parser.error("Failed to specify run numbers")
 
     # get the file
-    try:
-        print findfile(instr, runnumber)
-    except RuntimeError, e:
-        print e
+    for run in runnumbers:
+        try:
+            print findfile(instr, run)
+        except RuntimeError, e:
+            print e

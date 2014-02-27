@@ -9,12 +9,7 @@ import xml.dom.minidom
 __version__ = "0.2.0"
 
 # the endpoint for icat v4
-BASE_URL = 'http://icat.sns.gov:8080/icat-rest-ws/datafile/filename/'
-
-# list of known instruments
-INSTR = ['NOM', 'BSS', 'SNAP', 'REF_M', 'REF_L', 'CNCS', 'EQSANS', 'VULCAN',
-         'CORELLI', 'PG3', 'MANDI', 'TOPAZ', 'HYS', 'HYSA', 'VIS', 'SEQ',
-         'ARCS', 'VENUS']
+BASE_URL = 'http://icat.sns.gov:8080/icat-rest-ws/'
 
 # list of log levels
 LOGLEVELS = ["DEBUG", "INFO", "WARNING"]
@@ -26,6 +21,7 @@ def __bashOptions(keyword):
     @param keyword The type of documentation to give out options for
     """
     if keyword == "instruments":
+        INSTR = getInstruments()
         options = [instr.lower() for instr in INSTR]
         options.extend(INSTR)
         print " ".join(options)
@@ -93,6 +89,32 @@ def procLocations(locations):
 
     return result
 
+def getInstruments():
+    """
+    Hit ICAT to find out the list of instruments at the facility.
+    """
+    url = BASE_URL + 'experiment/SNS'
+    logging.info("trying " + url)
+
+    # get the document
+    handle = urllib.urlopen(url)
+    doc =  handle.read()
+    logging.debug("DOC:" + doc)
+
+    # parse the xml
+    doc = xml.dom.minidom.parseString(doc)
+
+    # convert to actual instruments
+    instr_xml = doc.getElementsByTagName("instruments")[0]
+    instr_str = []
+    for instr in instr_xml.childNodes:
+        for node in instr.childNodes:
+            if node.nodeType == node.TEXT_NODE:
+                instr_str.append(str(node.data))
+                break
+    logging.debug("converted %d locations to strings" % len(instr_str))
+    return instr_str
+
 def askIcat(filename):
     """
     Ping ICAT for the locations that the file might be at and convert them
@@ -100,7 +122,7 @@ def askIcat(filename):
 
     @return The first path that works (as suggested by ICAT) or None.
     """
-    url = BASE_URL + filename
+    url = BASE_URL + 'datafile/filename/' + filename
     logging.info("trying " + url)
 
     # get the document
@@ -200,6 +222,7 @@ if __name__ == "__main__":
         msg += " or --filename FILENAME"
         parser.error(msg)
     instr = args[0].upper()
+    INSTR = getInstruments()
     if not instr in INSTR:
         parser.error("Unknown instrument '%s' %s" % (instr, str(INSTR)))
     runnumbers = []

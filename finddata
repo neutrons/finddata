@@ -208,7 +208,7 @@ if __name__ == "__main__":
             print filename
             sys.exit(0)
         else:
-            print "Failed to find file", filename
+            print "Failed to find file", options.filename
             sys.exit(1)
 
     # hidden options to help out bash completion

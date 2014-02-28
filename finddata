@@ -91,11 +91,8 @@ def procLocations(locations):
 
     return result
 
-def getInstruments():
-    """
-    Hit ICAT to find out the list of instruments at the facility.
-    """
-    url = BASE_URL + 'experiment/SNS'
+def getXml(endpoint):
+    url = BASE_URL + endpoint
     logging.info("trying " + url)
 
     # get the document
@@ -104,7 +101,14 @@ def getInstruments():
     logging.debug("DOC:" + doc)
 
     # parse the xml
-    doc = xml.dom.minidom.parseString(doc)
+    return xml.dom.minidom.parseString(doc)
+
+
+def getInstruments():
+    """
+    Hit ICAT to find out the list of instruments at the facility.
+    """
+    doc = getXml('experiment/SNS')
 
     # convert to actual instruments
     instr_xml = doc.getElementsByTagName("instruments")[0]
@@ -121,16 +125,7 @@ def getProposal(instr, run):
     """
     Get the proposal for a given run.
     """
-    url = BASE_URL + "dataset/SNS/" + instr + '/' + str(run) + "/metaOnly"
-    logging.info("trying " + url)
-
-    # get the document
-    handle = urllib.urlopen(url)
-    doc =  handle.read()
-    logging.debug("DOC:" + doc)
-
-    # parse the xml
-    doc = xml.dom.minidom.parseString(doc)
+    doc = getXml("dataset/SNS/" + instr + '/' + str(run) + "/metaOnly")
 
     xmlblob = doc.getElementsByTagName("proposal")[0]
     proposal = "Failed to find proposal"
@@ -141,6 +136,17 @@ def getProposal(instr, run):
 
     return proposal
 
+def getRunsInProp(instr, proposal):
+    doc = getXml("experiment/SNS/" + instr + "/" + proposal)
+    xmlblob = doc.getElementsByTagName("runRange")[0]
+    runs = "Failed to find any runs for " + proposal
+    for node in xmlblob.childNodes:
+        if node.nodeType == node.TEXT_NODE:
+            runs = str(node.data)
+            runs = runs.replace(" ", "")
+            break
+    return runs
+
 def getFileLoc(filename):
     """
     Ping ICAT for the locations that the file might be at and convert them
@@ -148,16 +154,7 @@ def getFileLoc(filename):
 
     @return The first path that works (as suggested by ICAT) or None.
     """
-    url = BASE_URL + 'datafile/filename/' + filename
-    logging.info("trying " + url)
-
-    # get the document
-    handle = urllib.urlopen(url)
-    doc =  handle.read()
-    logging.debug("DOC:" + doc)
-
-    # parse the xml
-    doc = xml.dom.minidom.parseString(doc)
+    doc = getXml('datafile/filename/' + filename)
 
     # convert to actual locations
     locations = doc.getElementsByTagName("locations")[0]
@@ -199,7 +196,7 @@ if __name__ == "__main__":
     # set up optparse
     import optparse # deprecated since v2.7 and should switch to argparse
     parser = optparse.OptionParser(description="Find data files using ICAT",
-                                   usage="%prog [options] <instr> <runnumbers>")
+                                   usage="%prog [options] <instr> <runnumbers/proposal>")
     parser.add_option("-l", "--loglevel", dest="loglevel", default="WARNING",
                       help="Specify the log level (" \
                           + ", ".join(LOGLEVELS)+ ")")
@@ -210,6 +207,9 @@ if __name__ == "__main__":
     parser.add_option("", "--getproposal", dest="getproposal",
                       action="store_true",
                       help="Show the proposal for the run")
+    parser.add_option("", "--listruns", dest="listruns",
+                      action="store_true",
+                      help="List all of the runs in a proposal")
 
     # parse the command line
     (options, args) = parser.parse_args()
@@ -259,7 +259,11 @@ if __name__ == "__main__":
         runnumbers.extend(procNumbers(arg))
 
     if len(runnumbers) <= 0:
-        parser.error("Failed to specify run numbers")
+        if not options.listruns:
+            parser.error("Failed to specify run numbers")
+        else:
+            # is actual the proposal number
+            print getRunsInProp(instr, args[1])
 
     # do the actual searching
     if options.getproposal:

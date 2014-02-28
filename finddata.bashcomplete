@@ -8,7 +8,7 @@ _finddata()
   prev="${COMP_WORDS[COMP_CWORD-1]}"
 
   local opts
-  opts="-h --help -l --loglevel -v --version --filename --listruns --getproposal"
+  opts=`${prog} -- options`
 
   local instruments
   instruments=`${prog} -- instruments`

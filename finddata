@@ -16,7 +16,7 @@ BASE_URL = 'http://icat.sns.gov:8080/icat-rest-ws/'
 # list of log levels
 LOGLEVELS = ["DEBUG", "INFO", "WARNING"]
 
-def __bashOptions(keyword):
+def __bashOptions(keyword, parser):
     """
     Helper function to aid in bash completion.
     
@@ -31,6 +31,10 @@ def __bashOptions(keyword):
         options = [level.lower() for level in LOGLEVELS]
         options.extend(LOGLEVELS)
         print " ".join(options)
+    elif keyword == "options":
+        options = [str(item) for item in parser.option_list]
+        options = " ".join(options)
+        print options.replace("/", " ")
 
 def parseInt(number):
     try:
@@ -241,8 +245,8 @@ if __name__ == "__main__":
             sys.exit(1)
 
     # hidden options to help out bash completion
-    if len(args) == 1 and args[0] in ["instruments", "loglevels"]:
-        __bashOptions(args[0])
+    if len(args) == 1 and args[0] in ["instruments", "loglevels", "options"]:
+        __bashOptions(args[0], parser)
         sys.exit(0)
 
     # verify that both instrument and runnumber were supplied

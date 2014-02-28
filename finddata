@@ -8,7 +8,9 @@ import xml.dom.minidom
 # finddata version
 __version__ = "0.2.0"
 
-# the endpoint for icat v4
+# The endpoint for icat v4.
+# List of restful web services available is at
+# https://trac.sns.gov/adara/wiki/Post-Processing
 BASE_URL = 'http://icat.sns.gov:8080/icat-rest-ws/'
 
 # list of log levels
@@ -115,7 +117,31 @@ def getInstruments():
     logging.debug("converted %d locations to strings" % len(instr_str))
     return instr_str
 
-def askIcat(filename):
+def getProposal(instr, run):
+    """
+    Get the proposal for a given run.
+    """
+    url = BASE_URL + "dataset/SNS/" + instr + '/' + str(run) + "/metaOnly"
+    logging.info("trying " + url)
+
+    # get the document
+    handle = urllib.urlopen(url)
+    doc =  handle.read()
+    logging.debug("DOC:" + doc)
+
+    # parse the xml
+    doc = xml.dom.minidom.parseString(doc)
+
+    xmlblob = doc.getElementsByTagName("proposal")[0]
+    proposal = "Failed to find proposal"
+    for node in xmlblob.childNodes:
+        if node.nodeType == node.TEXT_NODE:
+            proposal = str(node.data)
+            break
+
+    return proposal
+
+def getFileLoc(filename):
     """
     Ping ICAT for the locations that the file might be at and convert them
     into usable paths.
@@ -152,7 +178,7 @@ def findfile(instr, run):
 
     # try pre-ADARA name
     shortname = instr+"_"+run+"_event.nxs"
-    filename = askIcat(shortname)
+    filename = getFileLoc(shortname)
     if filename is None:
         logging.info("failed to find pre-ADARA file: " + shortname)
     else:
@@ -160,7 +186,7 @@ def findfile(instr, run):
 
     # try ADARA name
     shortname = instr+"_"+run+".nxs.h5"
-    filename = askIcat(shortname)
+    filename = getFileLoc(shortname)
     if filename is None:
         logging.info("failed to find ADARA file: " + shortname)
     else:
@@ -181,6 +207,9 @@ if __name__ == "__main__":
                       help="Print the version information and exit")
     parser.add_option("-f", "--filename", dest="filename",
                       help="look for a specific filename")
+    parser.add_option("", "--getproposal", dest="getproposal",
+                      action="store_true",
+                      help="Show the proposal for the run")
 
     # parse the command line
     (options, args) = parser.parse_args()
@@ -203,7 +232,7 @@ if __name__ == "__main__":
 
     # if the filename is specified just search and be done
     if options.filename:
-        filename = askIcat(options.filename)
+        filename = getFileLoc(options.filename)
         if filename is not None:
             print filename
             sys.exit(0)
@@ -232,9 +261,18 @@ if __name__ == "__main__":
     if len(runnumbers) <= 0:
         parser.error("Failed to specify run numbers")
 
-    # get the file
-    for run in runnumbers:
-        try:
-            print findfile(instr, run)
-        except RuntimeError, e:
-            print e
+    # do the actual searching
+    if options.getproposal:
+        multiRun = (len(runnumbers) > 1)
+        for run in runnumbers:
+            result = getProposal(instr, run)
+            if multiRun:
+                print run,
+            print result
+    else:
+        # get the file
+        for run in runnumbers:
+            try:
+                print findfile(instr, run)
+            except RuntimeError, e:
+                print e

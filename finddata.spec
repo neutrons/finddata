@@ -1,5 +1,5 @@
 Name:           finddata
-Version:        0.2.1
+Version:        0.2.2
 Release:        1%{?dist}
 Summary:        Find data files using ICAT
 

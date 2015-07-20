@@ -6,12 +6,12 @@ import urllib
 import xml.dom.minidom
 
 # finddata version
-__version__ = "0.2.1"
+__version__ = "0.2.2"
 
 # The endpoint for icat v4.
 # List of restful web services available is at
 # https://trac.sns.gov/adara/wiki/Post-Processing
-BASE_URL = 'http://icat.sns.gov:8080/icat-rest-ws/'
+BASE_URL = 'http://icat.sns.gov:2080/icat-rest-ws/'
 
 # list of log levels
 LOGLEVELS = ["DEBUG", "INFO", "WARNING"]
@@ -19,7 +19,7 @@ LOGLEVELS = ["DEBUG", "INFO", "WARNING"]
 def __bashOptions(keyword, parser):
     """
     Helper function to aid in bash completion.
-    
+
     @param keyword The type of documentation to give out options for
     """
     if keyword == "instruments":
@@ -51,7 +51,7 @@ def procNumbers(numbers):
         return [int(numbers)]
     except ValueError:
         pass
-    
+
     # split on commas
     result = []
     for item in numbers.split(','):

@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+from __future__ import (absolute_import, division, print_function, unicode_literals)
+
 import logging
 import os
 import sys
@@ -26,21 +28,21 @@ def __bashOptions(keyword, parser):
         INSTR = getInstruments()
         options = [instr.lower() for instr in INSTR]
         options.extend(INSTR)
-        print " ".join(options)
+        print(" ".join(options))
     elif keyword == "loglevels":
         options = [level.lower() for level in LOGLEVELS]
         options.extend(LOGLEVELS)
-        print " ".join(options)
+        print(" ".join(options))
     elif keyword == "options":
         options = [str(item) for item in parser.option_list]
 
         options = " ".join(options)
-        print options.replace("/", " ")
+        print(options.replace("/", " "))
 
 def parseInt(number):
     try:
         return int(number)
-    except ValueError, e:
+    except ValueError as e:
         logging.info("Invalid run numbers: %s" % str(e))
 
     return 0
@@ -232,17 +234,17 @@ if __name__ == "__main__":
 
     # if they want the version just give it back and exit
     if options.version:
-        print "finddata version " + __version__
+        print("finddata version " + __version__)
         sys.exit(0)
 
     # if the filename is specified just search and be done
     if options.filename:
         filename = getFileLoc(options.filename)
         if filename is not None:
-            print filename
+            print(filename)
             sys.exit(0)
         else:
-            print "Failed to find file", options.filename
+            print("Failed to find file", options.filename)
             sys.exit(1)
 
     # hidden options to help out bash completion
@@ -269,7 +271,7 @@ if __name__ == "__main__":
             parser.error("Failed to specify run numbers")
         else:
             # is actual the proposal number
-            print getRunsInProp(instr, args[1])
+            print(getRunsInProp(instr, args[1]))
 
     # do the actual searching
     if options.getproposal:
@@ -277,12 +279,12 @@ if __name__ == "__main__":
         for run in runnumbers:
             result = getProposal(instr, run)
             if multiRun:
-                print run,
-            print result
+                print(run,)
+            print(result)
     else:
         # get the file
         for run in runnumbers:
             try:
-                print findfile(instr, run)
-            except RuntimeError, e:
-                print e
+                print(findfile(instr, run))
+            except RuntimeError as e:
+                print(e)

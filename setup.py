@@ -8,4 +8,6 @@ setup(name="finddata",
       url = "http://github.com/peterfpeterson/finddata/",
       long_description = """This package uses ICAT4 at SNS to find NeXus files.""",
       license = "The MIT License (MIT)",
-      scripts=["finddata"])
+      scripts=["finddata"],
+      data_files=[('/etc/bash_completion.d/', ['finddata.bashcomplete'])]
+)

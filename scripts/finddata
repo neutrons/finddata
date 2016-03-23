@@ -6,9 +6,7 @@ import os
 import sys
 import urllib
 import xml.dom.minidom
-
-# finddata version
-__version__ = "0.2.2"
+from finddata import __version__
 
 # The endpoint for icat v4.
 # List of restful web services available is at

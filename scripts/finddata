@@ -199,25 +199,28 @@ def findfile(instr, run):
 
 if __name__ == "__main__":
     # set up optparse
-    import optparse # deprecated since v2.7 and should switch to argparse
-    parser = optparse.OptionParser(description="Find data files using ICAT",
-                                   usage="%prog [options] <instr> <runnumbers/proposal>")
-    parser.add_option("-l", "--loglevel", dest="loglevel", default="WARNING",
-                      help="Specify the log level (" \
-                          + ", ".join(LOGLEVELS)+ ")")
-    parser.add_option("-v", "--version", dest="version", action="store_true",
-                      help="Print the version information and exit")
-    parser.add_option("-f", "--filename", dest="filename",
-                      help="look for a specific filename")
-    parser.add_option("", "--getproposal", dest="getproposal",
-                      action="store_true",
-                      help="Show the proposal for the run")
-    parser.add_option("", "--listruns", dest="listruns",
-                      action="store_true",
-                      help="List all of the runs in a proposal")
+    import argparse # deprecated since v2.7 and should switch to argparse
+    parser = argparse.ArgumentParser(description="Find data files using ICAT") #,
+    #usage="%(prog) [options] <instr> <runnumbers/proposal>")
+    parser.add_argument('inst', nargs='?', help='Specify the instrument name')
+    parser.add_argument('runs', nargs='*', help='Specify the run numbers')
+
+    parser.add_argument("-l", "--loglevel", dest="loglevel", default="WARNING",
+                        help="Specify the log level (" \
+                        + ", ".join(LOGLEVELS)+ ")")
+    parser.add_argument("-v", "--version", dest="version", action="store_true",
+                        help="Print the version information and exit")
+    parser.add_argument("-f", "--filename", dest="filename",
+                        help="look for a specific filename")
+    parser.add_argument("--getproposal", dest="getproposal",
+                        action="store_true",
+                        help="Show the proposal for the run")
+    parser.add_argument("--listruns", dest="listruns",
+                        action="store_true",
+                        help="List all of the runs in a proposal")
 
     # parse the command line
-    (options, args) = parser.parse_args()
+    options = parser.parse_args()
 
     # setup logging
     options.loglevel = options.loglevel.upper()
@@ -227,8 +230,7 @@ if __name__ == "__main__":
                         level=options.loglevel)
 
     # log the options and arguments
-    logging.debug('opts ' + str(options))
-    logging.debug('args ' + str(args))
+    logging.debug('options ' + str(options))
 
     # if they want the version just give it back and exit
     if options.version:
@@ -246,22 +248,20 @@ if __name__ == "__main__":
             sys.exit(1)
 
     # hidden options to help out bash completion
-    if sys.argv[-2] == "--" \
+    if len(sys.argv) > 2 and sys.argv[-2] == "--" \
             and sys.argv[-1] in ["instruments", "loglevels", "options"]:
-        __bashOptions(args[0], parser)
+        __bashOptions(options.inst, parser)
         sys.exit(0)
 
     # verify that both instrument and runnumber were supplied
-    if len(args) < 2:
-        msg = "Got %d argument. Expecting instrument and run number" % len(args)
-        msg += " or --filename FILENAME"
-        parser.error(msg)
-    instr = args[0].upper()
+    if options.inst is None:
+        parser.error("Must supply instrument")
+    options.inst = options.inst.upper()
     INSTR = getInstruments()
-    if not instr in INSTR:
-        parser.error("Unknown instrument '%s' %s" % (instr, str(INSTR)))
+    if not options.inst in INSTR:
+        parser.error("Unknown instrument '%s' %s" % (options.inst, str(INSTR)))
     runnumbers = []
-    for arg in args[1:]:
+    for arg in options.runs:
         runnumbers.extend(procNumbers(arg))
 
     if len(runnumbers) <= 0:
@@ -275,7 +275,7 @@ if __name__ == "__main__":
     if options.getproposal:
         multiRun = (len(runnumbers) > 1)
         for run in runnumbers:
-            result = getProposal(instr, run)
+            result = getProposal(options.inst, run)
             if multiRun:
                 print(run,)
             print(result)
@@ -283,6 +283,6 @@ if __name__ == "__main__":
         # get the file
         for run in runnumbers:
             try:
-                print(findfile(instr, run))
+                print(findfile(options.inst, run))
             except RuntimeError as e:
                 print(e)

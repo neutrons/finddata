@@ -16,27 +16,6 @@ BASE_URL = 'http://icat.sns.gov:2080/icat-rest-ws/'
 # list of log levels
 LOGLEVELS = ["DEBUG", "INFO", "WARNING"]
 
-def __bashOptions(keyword, parser):
-    """
-    Helper function to aid in bash completion.
-
-    @param keyword The type of documentation to give out options for
-    """
-    if keyword == "instruments":
-        INSTR = getInstruments()
-        options = [instr.lower() for instr in INSTR]
-        options.extend(INSTR)
-        print(" ".join(options))
-    elif keyword == "loglevels":
-        options = [level.lower() for level in LOGLEVELS]
-        options.extend(LOGLEVELS)
-        print(" ".join(options))
-    elif keyword == "options":
-        options = [str(item) for item in parser.option_list]
-
-        options = " ".join(options)
-        print(options.replace("/", " "))
-
 def parseInt(number):
     try:
         return int(number)
@@ -109,7 +88,7 @@ def getXml(endpoint):
     return xml.dom.minidom.parseString(doc)
 
 
-def getInstruments():
+def getInstruments(withLower=False):
     """
     Hit ICAT to find out the list of instruments at the facility.
     """
@@ -124,6 +103,11 @@ def getInstruments():
                 instr_str.append(str(node.data))
                 break
     logging.debug("converted %d locations to strings" % len(instr_str))
+
+    if withLower:
+        lower_instr = [instr.lower() for instr in instr_str]
+        instr_str.extend(lower_instr)
+
     return instr_str
 
 def getProposal(instr, run):
@@ -142,7 +126,7 @@ def getProposal(instr, run):
     return proposal
 
 def getRunsInProp(instr, proposal):
-    doc = getXml("experiment/SNS/" + instr + "/" + proposal)
+    doc = getXml("experiment/SNS/" + str(instr) + "/" + str(proposal))
     xmlblob = doc.getElementsByTagName("runRange")[0]
     runs = "Failed to find any runs for " + proposal
     for node in xmlblob.childNodes:
@@ -199,15 +183,19 @@ def findfile(instr, run):
 
 if __name__ == "__main__":
     # set up optparse
-    import argparse # deprecated since v2.7 and should switch to argparse
-    parser = argparse.ArgumentParser(description="Find data files using ICAT") #,
-    #usage="%(prog) [options] <instr> <runnumbers/proposal>")
-    parser.add_argument('inst', nargs='?', help='Specify the instrument name')
-    parser.add_argument('runs', nargs='*', help='Specify the run numbers')
+    import argparse     # for command line options
+    import argcomplete  # for bash completion
+    parser = argparse.ArgumentParser(description="Find data files using ICAT")
+
+    parser.add_argument('inst', nargs='?', help='Specify the instrument name',
+                        choices=getInstruments(withLower=True))
+    parser.add_argument('runs', nargs='*',
+                        help='Specify the run numbers')
 
     parser.add_argument("-l", "--loglevel", dest="loglevel", default="WARNING",
-                        help="Specify the log level (" \
-                        + ", ".join(LOGLEVELS)+ ")")
+                        choices=LOGLEVELS,
+                        help="Specify the log level")# (" \
+                        #+ ", ".join(LOGLEVELS)+ ")")
     parser.add_argument("-v", "--version", dest="version", action="store_true",
                         help="Print the version information and exit")
     parser.add_argument("-f", "--filename", dest="filename",
@@ -216,9 +204,10 @@ if __name__ == "__main__":
                         action="store_true",
                         help="Show the proposal for the run")
     parser.add_argument("--listruns", dest="listruns",
-                        action="store_true",
                         help="List all of the runs in a proposal")
 
+    # set up bash completion
+    argcomplete.autocomplete(parser)
     # parse the command line
     options = parser.parse_args()
 
@@ -247,12 +236,6 @@ if __name__ == "__main__":
             print("Failed to find file", options.filename)
             sys.exit(1)
 
-    # hidden options to help out bash completion
-    if len(sys.argv) > 2 and sys.argv[-2] == "--" \
-            and sys.argv[-1] in ["instruments", "loglevels", "options"]:
-        __bashOptions(options.inst, parser)
-        sys.exit(0)
-
     # verify that both instrument and runnumber were supplied
     if options.inst is None:
         parser.error("Must supply instrument")
@@ -264,12 +247,13 @@ if __name__ == "__main__":
     for arg in options.runs:
         runnumbers.extend(procNumbers(arg))
 
+    if options.listruns:
+        # is actual the proposal number
+        print(getRunsInProp(options.inst, options.listruns))
+        sys.exit(0)
+
     if len(runnumbers) <= 0:
-        if not options.listruns:
-            parser.error("Failed to specify run numbers")
-        else:
-            # is actual the proposal number
-            print(getRunsInProp(instr, args[1]))
+        parser.error('Failed to specify any runs')
 
     # do the actual searching
     if options.getproposal:

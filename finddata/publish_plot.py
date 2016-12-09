@@ -43,7 +43,10 @@ def _determine_config_file(config_file):
                if os.access(name, os.R_OK)]
 
     # first one is a winner
-    return choices[0]
+    if len(choices) > 0:
+        return choices[0]
+    else:
+        return None
 
 def read_configuration(config_file=None):
     """
@@ -73,8 +76,14 @@ def _getURL(url_template, instrument, run_number):
     return url
 
 def publish_plot(instrument, run_number, files, config=None):
+    # read the configuration if one isn't provided
     if config is None:
         config = read_configuration()
+    # verify that it has an attribute that matters
+    try:
+        config.publish_urls
+    except AttributeError: # assume that it is a filename
+        config = read_configuration(config)
 
     run_number = str(run_number)
     url = _getURL(config.publish_url, instrument, run_number)

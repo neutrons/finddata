@@ -6,13 +6,14 @@ CONFIG_FILE = '/etc/autoreduce/post_processing.conf'
 
 class Configuration(object):
     """
-    Read and process configuration file and provide an easy way to create a configured Client object
+    Read and process configuration file and provide an easy way to create a configured Client object.
+    This is a heavily abbridged version of what is found in postprocessing
     """
     def __init__(self, config_file):
         if os.access(config_file, os.R_OK) == False:
             raise RuntimeError, "Configuration file doesn't exist or is not readable: %s" % config_file
-        cfg = open(config_file, 'r')
-        json_encoded = cfg.read()
+        with open(config_file, 'r') as cfg:
+            json_encoded = cfg.read()
         config = json.loads(json_encoded)
 
         # Keep a record of which config file we are using
@@ -23,21 +24,40 @@ class Configuration(object):
         self.publisher_username = config['publisher_username'] if 'publisher_username' in config else ''
         self.publisher_password = config['publisher_password'] if 'publisher_password' in config else ''
 
+def _determine_config_file(config_file):
+    # put together the list of all choices
+    choices = [config_file]
+    try:
+        import postprocessing.Configuration
+        choices.append(postprocessing.Configuration.CONFIG_FILE)
+        choices.append(postprocessing.Configuration.CONFIG_FILE_ALTERNATE)
+    except ImportError:
+        choices.append(CONFIG_FILE)
+
+    # filter out bad choices
+    choices = [name for name in choices
+               if not name is None]
+    choices = [name for name in choices
+               if len(name) > 0]
+    choices = [name for name in choices
+               if os.access(name, os.R_OK)]
+
+    # first one is a winner
+    return choices[0]
+
 def read_configuration(config_file=None):
     """
     Returns a new configuration object for a given
     configuration file
     @param config_file: configuration file to process
     """
+    config_file = _determine_config_file(config_file)
     if config_file is None:
-        # Make sure we have a configuration file to read
-        config_file = CONFIG_FILE
-        if os.access(config_file, os.R_OK) == False:
-            raise RuntimeError("Configuration file doesn't exist or is not readable: %s" % CONFIG_FILE)
+        raise RuntimeError("Failed to find Configuration file")
 
     return Configuration(config_file)
 
-def loadDiv(filename):
+def _loadDiv(filename):
     if not os.path.exists(filename):
         raise RuntimeError('\'%s\' does not exist' % filename)
     print 'loading \'%s\'' % filename
@@ -74,12 +94,15 @@ def publish_plot(instrument, run_number, files, config=None):
 
 if __name__ == '__main__':
     import sys
-    div = loadDiv(sys.argv[1])
-    name  = os.path.split(sys.argv[1])[-1]
-    (instr, runnumber) = name.split('_')[:2]
+    div = _loadDiv(sys.argv[1])
     #print '**********'
     #print div
 
+    # run information is generated from the filename
+    name  = os.path.split(sys.argv[1])[-1]
+    (instr, runnumber) = name.split('_')[:2]
+
     config = read_configuration('post_processing.conf')
+    #config = read_configuration('post_processing_full.conf')
     request = publish_plot(instr, runnumber, {'file':div}, config)
     print 'request returned', request.status_code

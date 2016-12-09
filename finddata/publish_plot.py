@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import (absolute_import, division, print_function, unicode_literals)
 import json
 import logging
 import os
@@ -17,7 +18,7 @@ except ImportError:
         """
         def __init__(self, config_file):
             if os.access(config_file, os.R_OK) == False:
-                raise RuntimeError, "Configuration file doesn't exist or is not readable: %s" % config_file
+                raise RuntimeError("Configuration file doesn't exist or is not readable: %s" % config_file)
             with open(config_file, 'r') as cfg:
                 json_encoded = cfg.read()
             config = json.loads(json_encoded)
@@ -64,8 +65,8 @@ def read_configuration(config_file=None):
 def _loadDiv(filename):
     if not os.path.exists(filename):
         raise RuntimeError('\'%s\' does not exist' % filename)
-    print 'loading \'%s\'' % filename
-    with file(filename, 'r') as handle:
+    print('loading \'%s\'' % filename)
+    with open(filename, 'r') as handle:
         div = handle.read()
     return div
 
@@ -88,7 +89,7 @@ def publish_plot(instrument, run_number, files, config=None):
 
     run_number = str(run_number)
     url = _getURL(config.publish_url, instrument, run_number)
-    print 'posting to \'%s\'' % url
+    print('posting to \'%s\'' % url)
 
     # these next 2 lines are explicity bad - and doesn't seem
     # to do ANYTHING
@@ -105,8 +106,8 @@ def publish_plot(instrument, run_number, files, config=None):
 if __name__ == '__main__':
     import sys
     div = _loadDiv(sys.argv[1])
-    #print '**********'
-    #print div
+    #print('**********')
+    #print(div)
 
     # run information is generated from the filename
     name  = os.path.split(sys.argv[1])[-1]
@@ -115,4 +116,4 @@ if __name__ == '__main__':
     config = read_configuration('post_processing.conf')
     #config = read_configuration('post_processing_full.conf')
     request = publish_plot(instr, runnumber, {'file':div}, config)
-    print 'request returned', request.status_code
+    print('request returned', request.status_code)

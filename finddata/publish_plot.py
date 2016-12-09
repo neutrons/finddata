@@ -82,7 +82,7 @@ def publish_plot(instrument, run_number, files, config=None):
         config = read_configuration()
     # verify that it has an attribute that matters
     try:
-        config.publish_urls
+        config.publish_url
     except AttributeError: # assume that it is a filename
         config = read_configuration(config)
 

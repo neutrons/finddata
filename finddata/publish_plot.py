@@ -1,38 +1,38 @@
 #!/usr/bin/env python
 import json
+import logging
 import os
 
-CONFIG_FILE = '/etc/autoreduce/post_processing.conf'
+try:
+    from postprocessing.Configuration import Configuration, CONFIG_FILE, CONFIG_FILE_ALTERNATE
+except ImportError:
+    CONFIG_FILE = '/etc/autoreduce/post_processing.conf'
+    CONFIG_FILE_ALTERNATE = 'post_processing.conf'
 
-class Configuration(object):
-    """
-    Read and process configuration file and provide an easy way to create a configured Client object.
-    This is a heavily abbridged version of what is found in postprocessing
-    """
-    def __init__(self, config_file):
-        if os.access(config_file, os.R_OK) == False:
-            raise RuntimeError, "Configuration file doesn't exist or is not readable: %s" % config_file
-        with open(config_file, 'r') as cfg:
-            json_encoded = cfg.read()
-        config = json.loads(json_encoded)
+    class Configuration(object):
+        """
+        Read and process configuration file and provide an easy
+        way to hold the various options for a client. This is a
+        heavily abridged version of what is found in postprocessing.
+        """
+        def __init__(self, config_file):
+            if os.access(config_file, os.R_OK) == False:
+                raise RuntimeError, "Configuration file doesn't exist or is not readable: %s" % config_file
+            with open(config_file, 'r') as cfg:
+                json_encoded = cfg.read()
+            config = json.loads(json_encoded)
 
-        # Keep a record of which config file we are using
-        self.config_file = config_file
+            # Keep a record of which config file we are using
+            self.config_file = config_file
 
-        # plot publishing
-        self.publish_url = config['publish_url_template'] if 'publish_url_template' in config else ''
-        self.publisher_username = config['publisher_username'] if 'publisher_username' in config else ''
-        self.publisher_password = config['publisher_password'] if 'publisher_password' in config else ''
+            # plot publishing
+            self.publish_url = config['publish_url_template'] if 'publish_url_template' in config else ''
+            self.publisher_username = config['publisher_username'] if 'publisher_username' in config else ''
+            self.publisher_password = config['publisher_password'] if 'publisher_password' in config else ''
 
 def _determine_config_file(config_file):
     # put together the list of all choices
-    choices = [config_file]
-    try:
-        import postprocessing.Configuration
-        choices.append(postprocessing.Configuration.CONFIG_FILE)
-        choices.append(postprocessing.Configuration.CONFIG_FILE_ALTERNATE)
-    except ImportError:
-        choices.append(CONFIG_FILE)
+    choices = [config_file, CONFIG_FILE, CONFIG_FILE_ALTERNATE]
 
     # filter out bad choices
     choices = [name for name in choices
@@ -56,8 +56,9 @@ def read_configuration(config_file=None):
     """
     config_file = _determine_config_file(config_file)
     if config_file is None:
-        raise RuntimeError("Failed to find Configuration file")
+        raise RuntimeError('Failed to find Configuration file')
 
+    logging.info('Loading configuration \'%s\'' % config_file)
     return Configuration(config_file)
 
 def _loadDiv(filename):

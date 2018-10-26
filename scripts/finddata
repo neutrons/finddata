@@ -1,23 +1,23 @@
 #!/usr/bin/env python
 from __future__ import (absolute_import, division, print_function, unicode_literals)
 
+import json
 import logging
 import os
+import re
 import sys
 try:
     from urllib import urlopen
 except ImportError:
     from urllib.request import urlopen
-import xml.dom.minidom
 from finddata import __version__
 
-# The endpoint for icat v4.
-# List of restful web services available is at
-# https://trac.sns.gov/adara/wiki/Post-Processing
-BASE_URL = 'http://icat.sns.gov:2080/icat-rest-ws/'
+BASE_URL = 'https://oncat.ornl.gov/'
 
 # list of log levels
 LOGLEVELS = ["DEBUG", "INFO", "WARNING"]
+
+########################################################################
 
 def parseInt(number):
     try:
@@ -50,61 +50,22 @@ def procNumbers(numbers):
 
     return result
 
-def procLocations(locations):
-    """
-    Turn a list of xml nodes into a list of paths. This only returns
-    paths for files that pass os.path.exists.
-
-    @param locations The xml node that contains the locations
-    @returns The list of files. The list is empty if none are found.
-    """
-    logging.debug("starting with %d locations" % len(locations))
-    str_locs = []
-
-    # convert nodes to strings
-    for location in locations:
-        for node in location.childNodes:
-            if node.nodeType == node.TEXT_NODE:
-                str_locs.append(str(node.data))
-                break
-    logging.debug("converted %d locations to strings" % len(str_locs))
-
-    # see what is acually readible by the user
-    result = []
-    for location in str_locs:
-        if os.path.exists(location):
-            result.append(location)
-    logging.debug("%d locations exist" % len(result))
-
-    return result
-
-def getXml(endpoint):
+def getJson(endpoint):
     url = BASE_URL + endpoint
-    logging.info("trying " + url)
-
-    # get the document
     handle = urlopen(url)
-    doc =  handle.read().decode()
+    doc = handle.read().decode()
     logging.debug("DOC:" + doc)
 
-    # parse the xml
-    return xml.dom.minidom.parseString(doc)
-
+    return json.loads(doc)
 
 def getInstruments(withLower=False):
     """
-    Hit ICAT to find out the list of instruments at the facility.
+    Hit ONCat to find out the list of instruments at the facility.
     """
-    doc = getXml('experiment/SNS')
+    doc = getJson('api/instruments?facility=SNS')
 
     # convert to actual instruments
-    instr_xml = doc.getElementsByTagName("instruments")[0]
-    instr_str = []
-    for instr in instr_xml.childNodes:
-        for node in instr.childNodes:
-            if node.nodeType == node.TEXT_NODE:
-                instr_str.append(str(node.data))
-                break
+    instr_str = [instrument['id'] for instrument in doc]
     logging.debug("converted %d locations to strings" % len(instr_str))
 
     if withLower:
@@ -117,44 +78,71 @@ def getProposal(instr, run):
     """
     Get the proposal for a given run.
     """
-    doc = getXml("dataset/SNS/" + instr + '/' + str(run) + "/metaOnly")
+    endpoint = (
+        'api/datafiles'
+        '?facility=SNS'
+        '&instrument=%s'
+        '&ranges_q=indexed.run_number:%s'
+        '&sort_by=ingested'
+        '&sort_order=DESCENDING'
+        '&projection=experiment'
+    )
+    doc = getJson(endpoint % (instr, run))
+    if not doc:
+        return "Failed to find proposal"
 
-    xmlblob = doc.getElementsByTagName("proposal")[0]
-    proposal = "Failed to find proposal"
-    for node in xmlblob.childNodes:
-        if node.nodeType == node.TEXT_NODE:
-            proposal = str(node.data)
-            break
-
-    return proposal
+    return doc[0]['experiment']
 
 def getRunsInProp(instr, proposal):
-    doc = getXml("experiment/SNS/" + str(instr) + "/" + str(proposal))
-    xmlblob = doc.getElementsByTagName("runRange")[0]
-    runs = "Failed to find any runs for " + proposal
-    for node in xmlblob.childNodes:
-        if node.nodeType == node.TEXT_NODE:
-            runs = str(node.data)
-            runs = runs.replace(" ", "")
-            break
-    return runs
+    endpoint = (
+        'api/experiments/%s'
+        '?facility=SNS'
+        '&instrument=%s'
+        '&projection=indexed'
+    )
+    doc = getJson(endpoint % (proposal, instr))
+
+    return doc['indexed']['run_number']['ranges']
 
 def getFileLoc(filename):
     """
-    Ping ICAT for the locations that the file might be at and convert them
+    Ping ONCat for the locations that the file might be at and convert them
     into usable paths.
 
-    @return The first path that works (as suggested by ICAT) or None.
+    @return The first path that works (as suggested by ONCat) or None.
     """
-    doc = getXml('datafile/filename/' + filename)
+    result = re.search("^(?P<inst>.+?)_(?P<run>\d+).*$", filename)
+    if not result:
+        return None
 
-    # convert to actual locations
-    locations = doc.getElementsByTagName("locations")[0]
-    locations = procLocations(locations.childNodes)
+    instrument = result.group('inst')
+    run = result.group('run')
 
-    logging.info("found locations[%d]: %s" % (len(locations), str(locations)))
+    endpoint = (
+        'api/datafiles'
+        '?facility=SNS'
+        '&instrument=%s'
+        '&ranges_q=indexed.run_number:%s'
+        '&sort_by=ingested'
+        '&sort_order=DESCENDING'
+        '&projection=location'
+    )
+    doc = getJson(endpoint % (instrument, run))
 
-    if len(locations) > 0: # always return the first one
+    locations = [
+        datafile['location']
+        for datafile in doc
+        if (
+            os.path.exists(datafile['location']) and
+            os.path.basename(datafile['location']).startswith(filename)
+        )
+    ]
+
+    logging.info("found %s locations: [%s]" % (
+        len(locations), ', '.join(locations)
+    ))
+
+    if locations: # always return the first one
         return locations[0]
     else:
         return None
@@ -183,6 +171,8 @@ def findfile(instr, run):
 
     # give up
     raise RuntimeError("Failed to find data for %s %s" % (instr, run))
+
+########################################################################
 
 if __name__ == "__main__":
     # set up optparse

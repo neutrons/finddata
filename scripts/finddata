@@ -14,8 +14,12 @@ from finddata import __version__
 
 BASE_URL = 'https://oncat.ornl.gov/'
 
-# list of log levels
+# basic configuration of logging
 LOGLEVELS = ["DEBUG", "INFO", "WARNING"]
+lower_logs = [level.lower() for level in LOGLEVELS]
+LOGLEVELS.extend(lower_logs)
+del lower_logs
+logging.basicConfig(format='%(levelname)s:%(message)s')
 
 ########################################################################
 
@@ -53,6 +57,8 @@ def procNumbers(numbers):
 def getJson(endpoint):
     url = BASE_URL + endpoint
     handle = urlopen(url)
+    if handle.getcode() != 200:
+        raise RuntimeError('{} returned code={}'.format(url, handle.getcode()))
     doc = handle.read().decode()
     logging.debug("DOC:" + doc)
 
@@ -62,7 +68,11 @@ def getInstruments(withLower=False):
     """
     Hit ONCat to find out the list of instruments at the facility.
     """
-    doc = getJson('api/instruments?facility=SNS')
+    endpoint = 'api/instruments?facility=SNS'
+    doc = getJson(endpoint)
+    if len(doc) == 0:
+        url = BASE_URL + endpoint
+        raise RuntimeError('Failed to find instruments from {}'.format(url))
 
     # convert to actual instruments
     instr_str = [instrument['id'] for instrument in doc]
@@ -184,7 +194,6 @@ if __name__ == "__main__":
                         choices=getInstruments(withLower=True))
     parser.add_argument('runs', nargs='*',
                         help='Specify the run numbers')
-
     parser.add_argument("-l", "--loglevel", dest="loglevel", default="WARNING",
                         choices=LOGLEVELS,
                         help="Specify the log level")# (" \
@@ -208,8 +217,7 @@ if __name__ == "__main__":
     options.loglevel = options.loglevel.upper()
     options.loglevel = getattr(logging, options.loglevel.upper(),
                                logging.WARNING)
-    logging.basicConfig(format='%(levelname)s:%(message)s',
-                        level=options.loglevel)
+    logging.getLogger().setLevel(options.loglevel)
 
     # log the options and arguments
     logging.debug('options ' + str(options))

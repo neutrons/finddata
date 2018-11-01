@@ -9,3 +9,9 @@ Put `finddata` somewhere in your path (i.e. `/usr/local/bin`).
 Optional bash completion
 ------------------------
 Put `finddata.bashcomplete` in `/etc/bash_completion.d/`.
+
+Development
+-----------
+```
+python -c "import setuptools; execfile('setup.py')" develop
+```

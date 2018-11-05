@@ -57,7 +57,7 @@ def procNumbers(numbers):
 def getJson(endpoint):
     url = BASE_URL + endpoint
     req = Request(url)
-    req.add_header('User-Agent', 'Finddata ' + __version__)
+    req.add_header('User-Agent', 'Finddata/' + __version__)
     handle = urlopen(req)
     if handle.getcode() != 200:
         raise RuntimeError('{} returned code={}'.format(url, handle.getcode()))

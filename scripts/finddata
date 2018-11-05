@@ -7,9 +7,9 @@ import os
 import re
 import sys
 try:
-    from urllib import urlopen
+    from urllib2 import Request, urlopen
 except ImportError:
-    from urllib.request import urlopen
+    from urllib.request import Request, urlopen
 from finddata import __version__
 
 BASE_URL = 'https://oncat.ornl.gov/'
@@ -52,6 +52,8 @@ def procNumbers(numbers):
 
 def getJson(endpoint):
     url = BASE_URL + endpoint
+    req = Request(url)
+    req.add_header('User-Agent', 'Finddata ' + __version__)
     handle = urlopen(url)
     doc = handle.read().decode()
     logging.debug("DOC:" + doc)

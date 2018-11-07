@@ -1,10 +1,10 @@
 #!/usr/bin/env python
-from __future__ import (absolute_import, division, print_function, unicode_literals)
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
 
 import json
 import logging
 import os
-import re
 import sys
 try:
     from urllib2 import Request, urlopen
@@ -13,6 +13,7 @@ except ImportError:
 from finddata import __version__
 
 BASE_URL = 'https://oncat.ornl.gov/'
+FAILURE = 'Failed to find data for {} {}'
 
 # basic configuration of logging
 LOGLEVELS = ["DEBUG", "INFO", "WARNING"]
@@ -23,6 +24,7 @@ logging.basicConfig(format='%(levelname)s:%(message)s')
 
 ########################################################################
 
+
 def parseInt(number):
     try:
         return int(number)
@@ -30,6 +32,7 @@ def parseInt(number):
         logging.info("Invalid run numbers: %s" % str(e))
 
     return 0
+
 
 def procNumbers(numbers):
     # simply see if it is an integer
@@ -54,6 +57,7 @@ def procNumbers(numbers):
 
     return result
 
+
 def getJson(endpoint):
     url = BASE_URL + endpoint
     req = Request(url)
@@ -66,11 +70,12 @@ def getJson(endpoint):
 
     return json.loads(doc)
 
-def getInstruments(withLower=False):
+
+def getInstruments(facility, withLower=False):
     """
     Hit ONCat to find out the list of instruments at the facility.
     """
-    endpoint = 'api/instruments?facility=SNS'
+    endpoint = 'api/instruments?facility={}'.format(facility)
     doc = getJson(endpoint)
     if len(doc) == 0:
         url = BASE_URL + endpoint
@@ -86,103 +91,83 @@ def getInstruments(withLower=False):
 
     return instr_str
 
-def getProposal(instr, run):
+
+def getProposal(facility, instrument, run):
     """
     Get the proposal for a given run.
     """
     endpoint = (
         'api/datafiles'
-        '?facility=SNS'
+        '?facility=%s'
         '&instrument=%s'
         '&ranges_q=indexed.run_number:%s'
         '&sort_by=ingested'
         '&sort_order=DESCENDING'
         '&projection=experiment'
     )
-    doc = getJson(endpoint % (instr, run))
+    doc = getJson(endpoint % (facility, instrument, run))
     if not doc:
         return "Failed to find proposal"
 
     return doc[0]['experiment']
 
-def getRunsInProp(instr, proposal):
+
+def getRunsInProp(facility, instrument, proposal):
     endpoint = (
         'api/experiments/%s'
-        '?facility=SNS'
+        '?facility=%s'
         '&instrument=%s'
         '&projection=indexed'
     )
-    doc = getJson(endpoint % (proposal, instr))
+    doc = getJson(endpoint % (facility, proposal, instrument))
 
     return doc['indexed']['run_number']['ranges']
 
-def getFileLoc(filename):
+
+def getFileLoc(facility, instrument, runs):
     """
     Ping ONCat for the locations that the file might be at and convert them
     into usable paths.
 
     @return The first path that works (as suggested by ONCat) or None.
     """
-    result = re.search("^(?P<inst>.+?)_(?P<run>\d+).*$", filename)
-    if not result:
-        return None
+    logging.info('Looking for {}/{} runs {}'.format(facility, instrument, runs))
+    endpoint = 'api/datafiles' \
+               '?facility={}' \
+               '&instrument={}' \
+               '&ranges_q=indexed.run_number:{}' \
+               '&sort_by=ingested' \
+               '&tags=type/raw' \
+               '&sort_order=DESCENDING' \
+               '&projection=location' \
+               '&projection=indexed'
 
-    instrument = result.group('inst')
-    run = result.group('run')
+    rundescr = ','.join([str(runid) for runid in runs])
+    doc = getJson(endpoint.format(facility, instrument, rundescr))
+    if len(doc) == 0:
+        return [None]
 
-    endpoint = (
-        'api/datafiles'
-        '?facility=SNS'
-        '&instrument=%s'
-        '&ranges_q=indexed.run_number:%s'
-        '&sort_by=ingested'
-        '&sort_order=DESCENDING'
-        '&projection=location'
-    )
-    doc = getJson(endpoint % (instrument, run))
+    # convert result a list of tuples for files that exist
+    result = [(str(record['location']), record['indexed']['run_number'])
+              for record in doc
+              if os.path.exists(record['location'])]
 
-    locations = [
-        datafile['location']
-        for datafile in doc
-        if (
-            os.path.exists(datafile['location']) and
-            os.path.basename(datafile['location']).startswith(filename)
-        )
-    ]
+    # convert the list into dict(run number, file location)
+    locations = {}
+    for location, runid in result:
+        locations[runid] = location
+    logging.debug('ONCAT returned locations (that exist): {}'.format(locations))
 
-    logging.info("found %s locations: [%s]" % (
-        len(locations), ', '.join(locations)
-    ))
+    # put together a list of what was found
+    result = []
+    for runid in runs:
+        if runid in locations:
+            result.append(locations[runid])
+        else:
+            result.append(FAILURE.format(instrument, runid))
 
-    if locations: # always return the first one
-        return locations[0]
-    else:
-        return None
+    return result
 
-def findfile(instr, run):
-    """
-    Find the specified run.
-    """
-    run = str(run) # should come in as an integer
-
-    # try pre-ADARA name
-    shortname = instr+"_"+run+"_event.nxs"
-    filename = getFileLoc(shortname)
-    if filename is None:
-        logging.info("failed to find pre-ADARA file: " + shortname)
-    else:
-        return filename
-
-    # try ADARA name
-    shortname = instr+"_"+run+".nxs.h5"
-    filename = getFileLoc(shortname)
-    if filename is None:
-        logging.info("failed to find ADARA file: " + shortname)
-    else:
-        return filename
-
-    # give up
-    raise RuntimeError("Failed to find data for %s %s" % (instr, run))
 
 ########################################################################
 
@@ -193,17 +178,14 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Find data files using ICAT")
 
     parser.add_argument('inst', nargs='?', help='Specify the instrument name',
-                        choices=getInstruments(withLower=True))
+                        choices=getInstruments('SNS', withLower=True))
     parser.add_argument('runs', nargs='*',
                         help='Specify the run numbers')
     parser.add_argument("-l", "--loglevel", dest="loglevel", default="WARNING",
                         choices=LOGLEVELS,
-                        help="Specify the log level")# (" \
-                        #+ ", ".join(LOGLEVELS)+ ")")
+                        help="Specify the log level (default=%(default)s)")
     parser.add_argument("-v", "--version", dest="version", action="store_true",
                         help="Print the version information and exit")
-    parser.add_argument("-f", "--filename", dest="filename",
-                        help="look for a specific filename")
     parser.add_argument("--getproposal", dest="getproposal",
                         action="store_true",
                         help="Show the proposal for the run")
@@ -215,7 +197,7 @@ if __name__ == "__main__":
     # parse the command line
     options = parser.parse_args()
 
-    # setup logging
+    # reset logging to correct level
     options.loglevel = options.loglevel.upper()
     options.loglevel = getattr(logging, options.loglevel.upper(),
                                logging.WARNING)
@@ -229,30 +211,16 @@ if __name__ == "__main__":
         print("finddata version " + __version__)
         sys.exit(0)
 
-    # if the filename is specified just search and be done
-    if options.filename:
-        filename = getFileLoc(options.filename)
-        if filename is not None:
-            print(filename)
-            sys.exit(0)
-        else:
-            print("Failed to find file", options.filename)
-            sys.exit(1)
-
-    # verify that both instrument and runnumber were supplied
-    if options.inst is None:
-        parser.error("Must supply instrument")
     options.inst = options.inst.upper()
-    INSTR = getInstruments()
-    if not options.inst in INSTR:
-        parser.error("Unknown instrument '%s' %s" % (options.inst, str(INSTR)))
+
+    # convert the run numbers into a list of integers
     runnumbers = []
     for arg in options.runs:
         runnumbers.extend(procNumbers(arg))
 
     if options.listruns:
         # is actual the proposal number
-        print(getRunsInProp(options.inst, options.listruns))
+        print(getRunsInProp('SNS', options.inst, options.listruns))
         sys.exit(0)
 
     if len(runnumbers) <= 0:
@@ -262,14 +230,13 @@ if __name__ == "__main__":
     if options.getproposal:
         multiRun = (len(runnumbers) > 1)
         for run in runnumbers:
-            result = getProposal(options.inst, run)
+            result = getProposal('SNS', options.inst, run)
             if multiRun:
                 print(run,)
             print(result)
     else:
-        # get the file
-        for run in runnumbers:
-            try:
-                print(findfile(options.inst, run))
-            except RuntimeError as e:
-                print(e)
+        runnumbers = list(set(runnumbers))  # get rid of duplicates
+        runnumbers.sort()                   # and put them in order
+
+        for location in getFileLoc('SNS', options.inst, runnumbers):
+            print(location)

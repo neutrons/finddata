@@ -172,13 +172,19 @@ def getFileLoc(facility, instrument, runs):
 ########################################################################
 
 if __name__ == "__main__":
+    FACILITY = {}
+    for facility in ['HFIR', 'SNS']:
+        instruments = getInstruments(facility, withLower=True)
+        for instrument in instruments:
+            FACILITY[instrument] = facility
+
     # set up optparse
     import argparse     # for command line options
     import argcomplete  # for bash completion
     parser = argparse.ArgumentParser(description="Find data files using ICAT")
 
     parser.add_argument('inst', nargs='?', help='Specify the instrument name',
-                        choices=getInstruments('SNS', withLower=True))
+                        choices=FACILITY.keys())
     parser.add_argument('runs', nargs='*',
                         help='Specify the run numbers')
     parser.add_argument("-l", "--loglevel", dest="loglevel", default="WARNING",
@@ -212,6 +218,7 @@ if __name__ == "__main__":
         sys.exit(0)
 
     options.inst = options.inst.upper()
+    options.facility = FACILITY[options.inst]
 
     # convert the run numbers into a list of integers
     runnumbers = []
@@ -220,7 +227,7 @@ if __name__ == "__main__":
 
     if options.listruns:
         # is actual the proposal number
-        print(getRunsInProp('SNS', options.inst, options.listruns))
+        print(getRunsInProp(options.facility, options.inst, options.listruns))
         sys.exit(0)
 
     if len(runnumbers) <= 0:
@@ -230,7 +237,7 @@ if __name__ == "__main__":
     if options.getproposal:
         multiRun = (len(runnumbers) > 1)
         for run in runnumbers:
-            result = getProposal('SNS', options.inst, run)
+            result = getProposal(options.facility, options.inst, run)
             if multiRun:
                 print(run,)
             print(result)
@@ -238,5 +245,5 @@ if __name__ == "__main__":
         runnumbers = list(set(runnumbers))  # get rid of duplicates
         runnumbers.sort()                   # and put them in order
 
-        for location in getFileLoc('SNS', options.inst, runnumbers):
+        for location in getFileLoc(options.facility, options.inst, runnumbers):
             print(location)

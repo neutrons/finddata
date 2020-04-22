@@ -1,5 +1,5 @@
 import versioneer # https://github.com/warner/python-versioneer
-from distutils.core import setup
+from setuptools import setup
 
 setup(name="finddata",
       version=versioneer.get_version(), #"0.2.2",

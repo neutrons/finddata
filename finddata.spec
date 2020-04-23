@@ -36,7 +36,7 @@ Requires: python%{python3_pkgversion}
 Requires: python%{python3_pkgversion}-plotly
 Requires: python%{python3_pkgversion}-pyoncat
 Requires: bash
-Requires: bash-commpletion
+Requires: bash-completion
 Requires: python%{python3_pkgversion}-argcomplete
 %{?python_provide:%python_provide python%{python3_pkgversion}-%{srcname}}
 

@@ -7,6 +7,7 @@ import os
 try:
     from postprocessing.Configuration import Configuration, CONFIG_FILE, CONFIG_FILE_ALTERNATE
 except ImportError:
+    # Local dev only, mocking Configuration as needed
     CONFIG_FILE = '/etc/autoreduce/post_processing.conf'
     CONFIG_FILE_ALTERNATE = 'post_processing.conf'
 
@@ -27,9 +28,10 @@ except ImportError:
             self.config_file = config_file
 
             # plot publishing
-            self.publish_url = config['publish_url_template'] if 'publish_url_template' in config else ''
-            self.publisher_username = config['publisher_username'] if 'publisher_username' in config else ''
-            self.publisher_password = config['publisher_password'] if 'publisher_password' in config else ''
+            self.publish_url = config.get('publish_url_template', '')
+            self.publisher_username = config.get('publisher_username', '')
+            self.publisher_password = config.get('publisher_password', '')
+            self.publisher_certificate = config.get('publisher_certificate', '')
 
 
 def _determine_config_file(config_file):
@@ -103,9 +105,14 @@ def publish_plot(instrument, run_number, files, config=None):
     urllib3.disable_warnings()
 
     import requests
-    request = requests.post(url, data={'username': config.publisher_username,
-                                       'password': config.publisher_password},
-                            files=files, verify=False)
+    if config.publisher_certificate:
+        request = requests.post(url, data={'username': config.publisher_username,
+                                           'password': config.publisher_password},
+                                files=files, cert=config.publisher_certificate)
+    else:
+        request = requests.post(url, data={'username': config.publisher_username,
+                                           'password': config.publisher_password},
+                                files=files, verify=False)
     return request
 
 

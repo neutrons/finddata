@@ -4,7 +4,7 @@
 
 Summary: %{summary}
 Name: python-%{srcname}
-Version: 0.7.0
+Version: 0.8.0
 Release: %{release}%{?dist}
 Source0: https://github.com/peterfpeterson/finddata/archive/v%{version}.tar.gz
 License: MIT

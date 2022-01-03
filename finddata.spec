@@ -4,7 +4,7 @@
 
 Summary: %{summary}
 Name: python-%{srcname}
-Version: 0.8.1
+Version: 0.8.2
 Release: %{release}%{?dist}
 Source0: https://github.com/peterfpeterson/finddata/archive/v%{version}.tar.gz
 License: MIT
@@ -25,6 +25,7 @@ Requires: python2-plotly
 Requires: python2-pyoncat
 %{?python_provide:%python_provide python%{python3_pkgversion}-%{srcname}}
 
+BuildRequires: python2-devel
 BuildRequires: python2-setuptools
 
 %description -n %{srcname}
@@ -40,6 +41,7 @@ Requires: bash-completion
 Requires: python%{python3_pkgversion}-argcomplete
 %{?python_provide:%python_provide python%{python3_pkgversion}-%{srcname}}
 
+BuildRequires: python3-devel
 BuildRequires: python3-setuptools
 
 %description -n python%{python3_pkgversion}-%{srcname}

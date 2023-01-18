@@ -180,7 +180,10 @@ if __name__ == "__main__":
 
     # set up optparse
     import argparse     # for command line options
-    import argcomplete  # for bash completion
+    try:
+        import argcomplete  # for bash completion
+    except ImportError:
+        argcomplete = None
     parser = argparse.ArgumentParser(description="Find data files using ICAT")
 
     parser.add_argument('inst', nargs='?', help='Specify the instrument name',
@@ -199,7 +202,8 @@ if __name__ == "__main__":
                         help="List all of the runs in a proposal")
 
     # set up bash completion
-    argcomplete.autocomplete(parser)
+    if argcomplete:
+        argcomplete.autocomplete(parser)
     # parse the command line
     options = parser.parse_args()
 

@@ -119,7 +119,7 @@ def getRunsInProp(facility, instrument, proposal):
         '&instrument=%s'
         '&projection=indexed'
     )
-    doc = getJson(endpoint % (facility, proposal, instrument))
+    doc = getJson(endpoint % (proposal, facility, instrument))
 
     return doc['indexed']['run_number']['ranges']
 

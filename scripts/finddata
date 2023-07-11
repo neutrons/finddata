@@ -102,7 +102,7 @@ def getProposal(facility, instrument, run):
         '&instrument=%s'
         '&ranges_q=indexed.run_number:%s'
         '&sort_by=ingested'
-        '&sort_order=DESCENDING'
+        '&sort_direction=DESCENDING'
         '&projection=experiment'
     )
     doc = getJson(endpoint % (facility, instrument, run))

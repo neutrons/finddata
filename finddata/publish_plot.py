@@ -106,14 +106,18 @@ def publish_plot(instrument, run_number, files, config=None):
 
     import requests
     if config.publisher_certificate:
-        request = requests.post(url, data={'username': config.publisher_username,
+        response = requests.post(url, data={'username': config.publisher_username,
                                            'password': config.publisher_password},
                                 files=files, cert=config.publisher_certificate)
     else:
-        request = requests.post(url, data={'username': config.publisher_username,
+        response = requests.post(url, data={'username': config.publisher_username,
                                            'password': config.publisher_password},
                                 files=files, verify=False)
-    return request
+
+    if response.status_code != requests.codes.ok:
+        logging.error("Publish plot failed with return code: %d", response.status_code)
+        response.raise_for_status()  # throw requests.HTTPError error with details
+    return response
 
 
 def plot1d(run_number, data_list, data_names=None, x_title='', y_title='',

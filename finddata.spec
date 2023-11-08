@@ -4,7 +4,7 @@
 
 Summary: %{summary}
 Name: python-%{srcname}
-Version: 0.9.0
+Version: 0.9.1
 Release: %{release}%{?dist}
 Source0: https://github.com/peterfpeterson/finddata/archive/v%{version}.tar.gz
 License: MIT
@@ -21,7 +21,7 @@ Finddata uses ONCat to locate the full path of files on the NScD clusters.
 %package -n python%{python3_pkgversion}-%{srcname}
 Summary:  %{summary}
 Requires: python%{python3_pkgversion}
-Requires: python%{python3_pkgversion}-pyoncat
+Requires: python%{python3_pkgversion}-urllib3
 Requires: bash
 Requires: bash-completion
 Requires: python%{python3_pkgversion}-argcomplete

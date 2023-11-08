@@ -1,15 +1,9 @@
 #!/usr/bin/env python
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
 import json
 import logging
 import os
 import sys
-try:
-    from urllib2 import Request, urlopen
-except ImportError:
-    from urllib.request import Request, urlopen
+from urllib3 import PoolManager
 from finddata import __version__
 
 BASE_URL = 'https://oncat.ornl.gov/'
@@ -59,15 +53,16 @@ def procNumbers(numbers):
 
 
 def getJson(endpoint):
+    # make a request
     url = BASE_URL + endpoint
-    req = Request(url)
-    req.add_header('User-Agent', 'Finddata/' + __version__)
-    handle = urlopen(req)
-    if handle.getcode() != 200:
-        raise RuntimeError('{} returned code={}'.format(url, handle.getcode()))
-    doc = handle.read().decode()
-    logging.debug("DOC:" + doc)
+    http = PoolManager()
+    req = http.request("GET", url, headers={'User-Agent': f'Finddata/{__version__}'})
+    if req.status != 200:
+        raise RuntimeError('{} returned code={}'.format(url, req.status))
 
+    # convert the result into json
+    doc = req.data.decode()
+    logging.debug("DOC:" + doc)
     return json.loads(doc)
 
 

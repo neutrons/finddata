@@ -21,6 +21,7 @@ cp "${TARBALL}" "${HOME}/rpmbuild/SOURCES/v${VERSION}.tar.gz"
 echo "building the rpm"
 rpmbuild -ba finddata.spec || exit 127
 
+DIST=$(rpm --eval %{?dist})
 echo "========================================"
 echo "Successfully built rpm. To manually inspect package run"
-echo "rpm -qilRp ~/rpmbuild/RPMS/noarch/python3-finddata-${VERSION}-1.el7.noarch.rpm"
+echo "rpm -qilRp ~/rpmbuild/RPMS/noarch/python3-finddata-${VERSION}-1${DIST}.noarch.rpm"

@@ -167,7 +167,8 @@ def getFileLoc(facility, instrument, runs):
 
 ########################################################################
 
-if __name__ == "__main__":
+
+def main():
     FACILITY = {}
     for facility in ["HFIR", "SNS"]:
         instruments = getInstruments(facility, withLower=True)
@@ -250,3 +251,7 @@ if __name__ == "__main__":
 
         for location in getFileLoc(options.facility, options.inst, runnumbers):
             print(location)
+
+
+if __name__ == "__main__":
+    main()

@@ -1,7 +1,56 @@
+[project]
+name = "finddata"
+description = "A program to find data files using ONCat"
+dynamic = ["version"]
+#requires-python = ">=3.10"
+dependencies = [
+  # list all runtime dependencies here
+]
+license = { text = "MIT" }
+
+[project.urls]
+homepage = "https://github.com/neutrons/finddata/"  # if no homepage, use repo url
+
+[build-system]
+requires = [
+  "setuptools >= 40.6.0",
+  "wheel",
+  "toml",
+  "versioneer"
+]
+build-backend = "setuptools.build_meta"
+
+[tool.black]
+line-length = 119
+
+
+[tool.setuptools.packages.find]
+where = ["finddata"]
+#exclude = ["tests*", "scripts*", "docs*", "notebooks*"]
+
+[tool.setuptools.package-data]
+"*" = ["*.yml","*.yaml","*.ini"]
+
+[project.scripts]
+finddata = "scripts.finddata:main"
+
+[project.optional-dependencies]
+bashcompletion = ["/etc/bash_completion.d/finddata.bashcomplete"]
+
+[tool.pytest.ini_options]
+pythonpath = [
+  ".", "finddata", "scripts"
+]
+testpaths = ["tests"]
+python_files = ["test*.py"]
+norecursedirs = [".git", "tmp*", "_tmp*", "__pycache__", "*dataset*", "*data_set*"]
+markers = [
+    "mymarker: example markers goes here"
+]
+
 [tool.ruff]
 line-length = 120
-# https://beta.ruff.rs/docs/rules/
-select = ["A", "ARG", "BLE", "E", "F", "I", "PT"]
+select = ["A", "ARG","ASYNC","BLE","C90", "E", "F", "I", "N", "PT", "UP032", "W"]
 ignore = ["F403", "F405", # wild imports and  unknown names
 ]
 extend-exclude = ["conftest.py"]

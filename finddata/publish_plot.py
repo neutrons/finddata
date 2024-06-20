@@ -219,7 +219,7 @@ def plot1d(
         try:
             return publish_plot(instrument, run_number, files={"file": plot_div})
         except:  # noqa: E722
-            logging.error("Publish plot failed: %s", sys.exc_value)
+            logging.exception("Publish plot failed:")
             return None
     else:
         return plot_div
@@ -315,7 +315,7 @@ def plot_heatmap(
         try:
             return publish_plot(instrument, run_number, files={"file": plot_div})
         except:  # noqa: E722
-            logging.error("Publish plot failed: %s", sys.exc_value)
+            logging.exception("Publish plot failed:")
             return None
     else:
         return plot_div

@@ -10,3 +10,4 @@ dependencies:
   - libarchive
   - python-build
   - versioningit
+  - urllib3

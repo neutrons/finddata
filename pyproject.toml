@@ -16,6 +16,7 @@ requires = [
   "setuptools >= 40.6.0",
   "wheel",
   "toml",
+  "urllib3",
   "versioningit"
 ]
 build-backend = "setuptools.build_meta"
@@ -41,7 +42,7 @@ line-length = 119
 
 
 [tool.setuptools.packages.find]
-where = ["src", "scripts"]
+where = ["src", "scripts/finddata"]
 #exclude = ["tests*", "scripts*", "docs*", "notebooks*"]
 
 [tool.setuptools.package-data]

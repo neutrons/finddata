@@ -1,2 +1,2 @@
-include finddata finddata.bashcomplete README.md
-include finddata/_version.py
+include src/finddata finddata.bashcomplete README.md
+include src/finddata/_version.py

@@ -6,12 +6,11 @@ Installation
 ------------
 Put `finddata` somewhere in your path (i.e. `/usr/local/bin`).
 
+`python -m build; pip install .`
+
 Optional bash completion
 ------------------------
-Put `finddata.bashcomplete` in `/etc/bash_completion.d/`.
+`pip install .\[bashcompletion\]
 
-Development
------------
-```
-python -c "import setuptools; execfile('setup.py')" develop
-```
+
+

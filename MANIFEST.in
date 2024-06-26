@@ -1,3 +1,2 @@
 include finddata finddata.bashcomplete README.md
-include versioneer.py
 include finddata/_version.py

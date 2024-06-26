@@ -53,7 +53,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files -n python%{python3_pkgversion}-%{srcname}
 %doc README
-%license LICENSE.txt
+%license LICENSE
 %{python3_sitelib}/*
 /usr/bin/finddata
 /etc/bash_completion.d/finddata.bashcomplete

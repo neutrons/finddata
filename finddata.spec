@@ -4,16 +4,16 @@
 
 Summary: %{summary}
 Name: python-%{srcname}
-Version: 0.9.1
+Version: 0.10.0
 Release: %{release}%{?dist}
-Source0: https://github.com/peterfpeterson/finddata/archive/v%{version}.tar.gz
+Source: https://github.com/neutrons/finddata/archive/v%{version}.tar.gz
 License: MIT
 Group: Development/Libraries
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 Prefix: %{_prefix}
-BuildArch: noarch
+BuildArch: noarch / BuildRequires: gcc
 Vendor: Pete Peterson <petersonpf@ornl.gov>
-Url: https://github.com/peterfpeterson/finddata
+Url: https://github.com/neutrons/finddata
 
 %description
 Finddata uses ONCat to locate the full path of files on the NScD clusters.
@@ -28,25 +28,34 @@ Requires: python%{python3_pkgversion}-argcomplete
 %{?python_provide:%python_provide python%{python3_pkgversion}-%{srcname}}
 
 BuildRequires: python3-devel
-BuildRequires: python3-setuptools
+#BuildRequires: python3-setuptools
+#BuildRequires: pyproject-rpm-macros
+#BuildRequires: python3-tomli
+#BuildRequires: python3dist(tomli)
+#Requires: tomli
 
 %description -n python%{python3_pkgversion}-%{srcname}
 Finddata uses ONCat to locate the full path of files on the NScD clusters.
 
+
+
+
 %prep
-%setup -n %{srcname}-%{version} -n %{srcname}-%{version}
+%autosetup -p1 -n %{srcname}-%{version}
+
+%generate_buildrequires
+%pyproject_buildrequires -x / -t
 
 %build
-%py3_build
+%pyproject_wheel
 
 %install
-%py3_install
+%pyproject_install
 
-# testing is somehow broken, but the package did work
-#%check
-#%{__python3} setup.py test
-# ipywidgets is missing
-# skimage is missing
+%check
+
+
+
 
 %clean
 rm -rf $RPM_BUILD_ROOT

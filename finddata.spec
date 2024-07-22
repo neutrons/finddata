@@ -6,7 +6,7 @@ Summary: %{summary}
 Name: python-%{srcname}
 Version: 0.10.0
 Release: %{release}%{?dist}
-Source: https://github.com/neutrons/finddata/archive/v%{version}.tar.gz
+Source: %{srcname}-v%{version}.tar.gz
 License: MIT
 Group: Development/Libraries
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
@@ -41,7 +41,7 @@ Finddata uses ONCat to locate the full path of files on the NScD clusters.
 
 
 %prep
-%autosetup -p1 -n %{srcname}-%{version}
+%autosetup -p1 -n %{srcname}-v%{version}
 
 %generate_buildrequires
 %pyproject_buildrequires -x / -t

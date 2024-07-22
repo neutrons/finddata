@@ -14,7 +14,7 @@ homepage = "https://github.com/neutrons/finddata/"  # if no homepage, use repo u
 
 [build-system]
 requires = [
-  "setuptools >= 40.6.0",
+  "setuptools >= 42",
   "wheel",
   "toml",
   "urllib3",
@@ -37,6 +37,15 @@ distance-dirty = "{next_version}.dev{distance}+d{build_date:%Y%m%d%H%M}"
 [tool.versioningit.write]
 file = "src/finddata/_version.py"
 
+[tool.versioningit.onbuild]
+source-file = "src/finddata/_version.py"
+build-file = "finddata/_version.py"
+replacement = "{next_version}"
+
+
+[tool.setuptools.cmdclass]
+build_py = "versioningit.cmdclass.build_py"
+sdist = "versioningit.cmdclass.sdist"
 
 [tool.black]
 line-length = 119
@@ -57,7 +66,7 @@ finddata = "scripts.finddata:main"
 [project.optional-dependencies]
 bashcompletion = ["argcomplete"]
 
-[tools.setuptools.data-files]
+[tool.setuptools.data-files]
 "/etc/bash_completion.d" = ["finddata.bashcomplete"]
 
 

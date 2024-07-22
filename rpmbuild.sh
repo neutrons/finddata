@@ -10,12 +10,27 @@ if [ -z "${VERSION}" ]; then
 fi
 echo "Version is ${VERSION}"
 
+
 # create the tarball
-TARBALL="finddata-v${VERSION}.tar.gz"
-echo "creating tarball ${TARBALL}"
-git archive --format=tar.gz HEAD --prefix="finddata-${VERSION}/" -o "${TARBALL}"
+echo "building sdist..."
+
+TARBALL=$(python -m build --sdist --outdir . --no-isolation | grep -o '[^ ]*\.tar\.gz')
+
+echo $TARBALL
+exit 0
+
+
+
+
+mv ${TARBALL} finddata-v${VERSION}.tar.gz
+TARBALL=finddata-v${VERSION}.tar.gz
+
+echo "created ${TARBALL}"
+
+
+
 mkdir -p "${HOME}"/rpmbuild/SOURCES
-cp "${TARBALL}" "${HOME}/rpmbuild/SOURCES/v${VERSION}.tar.gz"
+cp "${TARBALL}" "${HOME}/rpmbuild/SOURCES/${TARBALL}"
 
 # build the rpm and give instructions
 echo "building the rpm"

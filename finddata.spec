@@ -38,16 +38,21 @@ Finddata uses ONCat to locate the full path of files on the NScD clusters.
 %autosetup -p1 -n %{srcname}-%{version}
 
 %generate_buildrequires
-%pyproject_buildrequires  -t
+%pyproject_buildrequires
 
 %build
 %pyproject_wheel
 
 %install
 %pyproject_install
+%{__mkdir} -p %{buildroot}/etc/bash_completion.d/
+%{__install} -m 644 finddata.bashcomplete %{buildroot}/etc/bash_completion.d/
+%{__mkdir} -p %{buildroot}%{_bindir}/
+%{__install} -m 755 scripts/finddata %{buildroot}%{_bindir}/
 
-%check
-%tox
+# there are no tests
+#check
+#tox
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -56,4 +61,5 @@ rm -rf $RPM_BUILD_ROOT
 %doc README.md
 %license LICENSE
 %{python3_sitelib}/*
-/usr/bin/finddata
+%{_bindir}/finddata
+/etc/bash_completion.d/finddata.bashcomplete

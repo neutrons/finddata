@@ -1,14 +1,14 @@
 [project]
 name = "finddata"
 description = "A program to find data files using ONCat"
-#dynamic = ["version"]
+dynamic = ["version"]
+#version = "0.10.0"
 #requires-python = ">=3.10"
 dependencies = [
   # list all runtime dependencies here
   "argcomplete",
 ]
 license = { text = "MIT" }
-version = "0.10.0"
 
 [project.urls]
 homepage = "https://github.com/neutrons/finddata/"  # if no homepage, use repo url
@@ -19,7 +19,7 @@ requires = [
   "wheel",
   "toml",
   "urllib3",
-  "versioningit"
+  # "versioningit" # rpm for this doesn't exist
 ]
 build-backend = "setuptools.build_meta"
 
@@ -50,7 +50,7 @@ where = ["src", "scripts/finddata"]
 [tool.setuptools.package-data]
 "*" = ["*.yml","*.yaml","*.ini"]
 
-[project.scripts]
+[console_scripts]
 finddata = "scripts.finddata:main"
 
 [project.optional-dependencies]
@@ -58,8 +58,7 @@ bashcompletion = ["argcomplete"]
 
 [tool.setuptools.data-files]
 "/etc/bash_completion.d" = ["finddata.bashcomplete"]
-
-
+"*" = ["scripts/finddata"]
 
 [tool.pytest.ini_options]
 pythonpath = [

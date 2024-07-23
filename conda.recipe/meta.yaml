@@ -35,7 +35,7 @@ requirements:
   run:
     - python
     - urllib3
-    
+
 test:
   commands:
     - finddata --help

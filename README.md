@@ -13,6 +13,3 @@ It is advised that this be readable only by the process using the functionality.
 Optional bash completion
 ------------------------
 `pip install .\[bashcompletion\]
-
-
-

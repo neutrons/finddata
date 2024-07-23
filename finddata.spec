@@ -62,4 +62,3 @@ rm -rf $RPM_BUILD_ROOT
 %license LICENSE
 %{python3_sitelib}/*
 /usr/bin/finddata
-

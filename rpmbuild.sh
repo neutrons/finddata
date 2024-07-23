@@ -13,12 +13,18 @@ echo "Version is ${VERSION}"
 
 # create the tarball
 echo "building sdist..."
+python -m build --sdist --outdir . --no-isolation || exit 127
+TARBALL="finddata-${VERSION}.tar.gz"
+if [ ! -f "${TARBALL}" ]; then
+    echo "'${TARBALL}' does not exist"
+    exit 127
+fi
+if [ ! -s "${TARBALL}" ]; then
+    echo "'${TARBALL}' is empty"
+    exit 127
+fi
 
-TARBALL=$(python -m build --sdist --outdir . --no-isolation | grep -o '[^ ]*\.tar\.gz')
-
-echo "created ${TARBALL}"
-
-
+# setup rpm directories for building
 mkdir -p "${HOME}"/rpmbuild/SOURCES
 cp "${TARBALL}" "${HOME}/rpmbuild/SOURCES/${TARBALL}"
 
@@ -26,6 +32,7 @@ cp "${TARBALL}" "${HOME}/rpmbuild/SOURCES/${TARBALL}"
 echo "building the rpm"
 rpmbuild -ba finddata.spec || exit 127
 
+# give people a hint on how to verify the rpm
 DIST=$(rpm --eval %{?dist})
 echo "========================================"
 echo "Successfully built rpm. To manually inspect package run"

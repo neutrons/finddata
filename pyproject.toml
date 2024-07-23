@@ -48,7 +48,7 @@ build-backend = "setuptools.build_meta"
 #build_py = "versioningit.cmdclass.build_py"
 #sdist = "versioningit.cmdclass.sdist"
 
-[tool.black]
+[tool.ruff]
 line-length = 119
 
 

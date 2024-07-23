@@ -28,13 +28,11 @@ Requires: python%{python3_pkgversion}-argcomplete
 %{?python_provide:%python_provide python%{python3_pkgversion}-%{srcname}}
 
 BuildRequires: python3-devel
-
+BuildRequires: python3-tomli
+BuildRequires: python3-wheel
 
 %description -n python%{python3_pkgversion}-%{srcname}
 Finddata uses ONCat to locate the full path of files on the NScD clusters.
-
-
-
 
 %prep
 %autosetup -p1 -n %{srcname}-%{version}
@@ -48,11 +46,8 @@ Finddata uses ONCat to locate the full path of files on the NScD clusters.
 %install
 %pyproject_install
 
-
 %check
 %tox
-
-
 
 %clean
 rm -rf $RPM_BUILD_ROOT

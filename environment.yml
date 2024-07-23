@@ -10,5 +10,6 @@ dependencies:
   - libmamba
   - libarchive
   - python-build
+  - toml
   - versioningit
   - urllib3

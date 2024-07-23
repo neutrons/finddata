@@ -4,4 +4,4 @@ try:
 except ImportError:
     __version__ = "unknown"
 
-from .publish_plot import publish_plot
+from .publish_plot import publish_plot # noqa: F401

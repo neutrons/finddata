@@ -43,10 +43,6 @@ source-file = "src/finddata/_version.py"
 build-file = "finddata/_version.py"
 replacement = "{next_version}"
 
-[tool.ruff]
-line-length = 119
-
-
 [tool.setuptools.packages.find]
 where = ["src", "scripts/finddata"]
 #exclude = ["tests*", "scripts*", "docs*", "notebooks*"]
@@ -56,8 +52,6 @@ where = ["src", "scripts/finddata"]
 
 [project.scripts]
 finddata = "scripts.finddata:main"
-
-
 
 [project.optional-dependencies]
 bashcompletion = ["argcomplete"]

@@ -16,17 +16,7 @@ echo "building sdist..."
 
 TARBALL=$(python -m build --sdist --outdir . --no-isolation | grep -o '[^ ]*\.tar\.gz')
 
-echo $TARBALL
-exit 0
-
-
-
-
-mv ${TARBALL} finddata-v${VERSION}.tar.gz
-TARBALL=finddata-v${VERSION}.tar.gz
-
 echo "created ${TARBALL}"
-
 
 
 mkdir -p "${HOME}"/rpmbuild/SOURCES

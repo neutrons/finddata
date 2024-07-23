@@ -6,7 +6,7 @@ Summary: %{summary}
 Name: python-%{srcname}
 Version: 0.10.0
 Release: %{release}%{?dist}
-Source: %{srcname}-v%{version}.tar.gz
+Source: %{srcname}-%{version}.tar.gz
 License: MIT
 Group: Development/Libraries
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
@@ -28,11 +28,7 @@ Requires: python%{python3_pkgversion}-argcomplete
 %{?python_provide:%python_provide python%{python3_pkgversion}-%{srcname}}
 
 BuildRequires: python3-devel
-#BuildRequires: python3-setuptools
-#BuildRequires: pyproject-rpm-macros
-#BuildRequires: python3-tomli
-#BuildRequires: python3dist(tomli)
-#Requires: tomli
+
 
 %description -n python%{python3_pkgversion}-%{srcname}
 Finddata uses ONCat to locate the full path of files on the NScD clusters.
@@ -41,10 +37,10 @@ Finddata uses ONCat to locate the full path of files on the NScD clusters.
 
 
 %prep
-%autosetup -p1 -n %{srcname}-v%{version}
+%autosetup -p1 -n %{srcname}-%{version}
 
 %generate_buildrequires
-%pyproject_buildrequires -x / -t
+%pyproject_buildrequires  -t
 
 %build
 %pyproject_wheel
@@ -52,8 +48,9 @@ Finddata uses ONCat to locate the full path of files on the NScD clusters.
 %install
 %pyproject_install
 
-%check
 
+%check
+%tox
 
 
 
@@ -61,8 +58,8 @@ Finddata uses ONCat to locate the full path of files on the NScD clusters.
 rm -rf $RPM_BUILD_ROOT
 
 %files -n python%{python3_pkgversion}-%{srcname}
-%doc README
+%doc README.md
 %license LICENSE
 %{python3_sitelib}/*
 /usr/bin/finddata
-/etc/bash_completion.d/finddata.bashcomplete
+

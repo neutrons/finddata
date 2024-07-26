@@ -51,14 +51,14 @@ exclude = ["tests*", "scripts*", "docs*", "notebooks*"]
 "*" = ["*.yml","*.yaml","*.ini"]
 
 [project.scripts]
-finddata = "scripts.finddata:main"
+finddata = "finddata.cli:main"
 
 [project.optional-dependencies]
 bashcompletion = ["argcomplete"]
 
 [tool.setuptools.data-files]
 "/etc/bash_completion.d" = ["finddata.bashcomplete"]
-"*" = ["scripts/finddata"]
+"*" = ["src/finddata/cli.py"]
 
 [tool.pytest.ini_options]
 pythonpath = [

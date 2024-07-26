@@ -4,8 +4,9 @@ import logging
 import os
 import sys
 
-from finddata import __version__
 from urllib3 import PoolManager
+
+from finddata import __version__
 
 BASE_URL = "https://oncat.ornl.gov/"
 FAILURE = "Failed to find data for {} {}"

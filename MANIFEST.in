@@ -1,2 +1,3 @@
 include src/finddata finddata.bashcomplete README.md
 include src/finddata/_version.py
+include scripts/finddata

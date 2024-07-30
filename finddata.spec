@@ -48,7 +48,6 @@ Finddata uses ONCat to locate the full path of files on the NScD clusters.
 %{__mkdir} -p %{buildroot}/etc/bash_completion.d/
 %{__install} -m 644 finddata.bashcomplete %{buildroot}/etc/bash_completion.d/
 %{__mkdir} -p %{buildroot}%{_bindir}/
-%{__install} -m 755 scripts/finddata %{buildroot}%{_bindir}/
 
 # there are no tests
 #check

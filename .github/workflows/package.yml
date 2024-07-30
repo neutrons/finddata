@@ -23,9 +23,10 @@ jobs:
           environment-file: environment.yml
           cache-environment-key: ${{ runner.os }}-env-${{ hashFiles('**/environment.yml') }}
           cache-downloads-key: ${{ runner.os }}-downloads-${{ hashFiles('**/environment.yml') }}
-      - name: install additional dependencies
+      - name: build and verify wheel
         run: |
-          echo "installing additional dependencies from environment_development.yml"
+          python -m build --wheel --no-isolation
+          check-wheel-contents dist/finddata-*.whl
       - name: build conda package
         run: |
           # set up environment

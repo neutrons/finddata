@@ -56,10 +56,6 @@ finddata = "finddata.cli:main"
 [project.optional-dependencies]
 bashcompletion = ["argcomplete"]
 
-[tool.setuptools.data-files]
-"/etc/bash_completion.d" = ["finddata.bashcomplete"]
-"*" = ["src/finddata/cli.py"]
-
 [tool.pytest.ini_options]
 pythonpath = [
   ".", "finddata", "scripts"

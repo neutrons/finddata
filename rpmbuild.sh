@@ -14,11 +14,11 @@ echo "Version is ${VERSION}"
 # create the tarball
 echo "building sdist..."
 python -m build --sdist --outdir . --no-isolation || exit 127
-TARBALL="finddata-${VERSION}*.tar.gz"
+TARBALL="finddata-${VERSION}.tar.gz"
 
 # setup rpm directories for building - renames the tarball
 mkdir -p "${HOME}"/rpmbuild/SOURCES
-cp "${TARBALL}" "${HOME}/rpmbuild/SOURCES/finddata-${VERSION}.tar.gz"
+cp "${TARBALL}" "${HOME}/rpmbuild/SOURCES/${TARBALL}" || exit 127
 
 # build the rpm and give instructions
 echo "building the rpm"

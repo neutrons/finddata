@@ -6,7 +6,8 @@ dynamic = ["version"]
 #requires-python = ">=3.10"
 dependencies = [
   # list all runtime dependencies here
-  "argcomplete",
+  "urllib3",
+  #"argcomplete",
 ]
 license = { text = "MIT" }
 

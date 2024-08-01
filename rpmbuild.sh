@@ -40,6 +40,7 @@ echo "building the rpm"
 rpmbuild -ba finddata.spec || exit 127
 
 # give people a hint on how to verify the rpm
+# shellcheck disable=SC1083
 DIST=$(rpm --eval %{?dist})
 echo "========================================"
 echo "Successfully built rpm. To manually inspect package run"

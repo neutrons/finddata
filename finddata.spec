@@ -16,7 +16,7 @@ Prefix: %{_prefix}
 BuildArch: noarch
 Vendor: Pete Peterson <petersonpf@ornl.gov>
 Url: https://github.com/neutrons/finddata
-Obsoletes: python3-finddata
+Obsoletes: python3-finddata < 0.10
 
 Patch1: finddata-pyproject.patch
 
@@ -29,7 +29,7 @@ Requires: python%{python3_pkgversion}
 Requires: python%{python3_pkgversion}-urllib3
 Requires: bash
 Requires: bash-completion
-#Requires: python%{python3_pkgversion}-argcomplete
+#Requires: python{python3_pkgversion}-argcomplete
 %{?python_provide:%python_provide python%{python3_pkgversion}-%{srcname}}
 
 BuildRequires: python%{python3_pkgversion}-devel

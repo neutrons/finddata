@@ -1,5 +1,4 @@
 #!/bin/sh
-set -x
 # get the version from the spec file
 SPECFILE="$(dirname "$(realpath "$0")")/finddata.spec"
 echo "Finding version from ${SPECFILE}"

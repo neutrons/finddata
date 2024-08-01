@@ -10,6 +10,8 @@ dependencies:
   - check-wheel-contents
   - libmamba
   - libarchive
+  # match what is used on rhel9
+  - python=3.11
   - python-build
   - toml
   - versioningit

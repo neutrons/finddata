@@ -2,6 +2,8 @@
 
 # place the rpm gets built from
 tarsrc
+src/finddata/_version.py
+finddata*.tar.gz
 
 # C extensions
 *.so

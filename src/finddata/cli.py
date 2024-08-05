@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import json
 import logging
 import os
@@ -219,6 +219,8 @@ def main():
         print("finddata version " + __version__)
         sys.exit(0)
 
+    if not options.inst:
+        parser.error("Failed to specify an instrument")
     options.inst = options.inst.upper()
     options.facility = FACILITY[options.inst]
 

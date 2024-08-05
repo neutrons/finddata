@@ -2,9 +2,12 @@
 name = "finddata"
 description = "A program to find data files using ONCat"
 dynamic = ["version"]
+#version = "0.10.0"
 #requires-python = ">=3.10"
 dependencies = [
   # list all runtime dependencies here
+  "urllib3",
+  #"argcomplete",
 ]
 license = { text = "MIT" }
 
@@ -13,29 +16,46 @@ homepage = "https://github.com/neutrons/finddata/"  # if no homepage, use repo u
 
 [build-system]
 requires = [
-  "setuptools >= 40.6.0",
+  "setuptools >= 42",
   "wheel",
   "toml",
-  "versioneer"
+  "urllib3",
+  # "versioningit" # rpm for this doesn't exist
 ]
 build-backend = "setuptools.build_meta"
 
-[tool.black]
-line-length = 119
+[tool.versioningit.vcs]
+method = "git"
+default-tag = "0.0.1"
 
+[tool.versioningit.next-version]
+method = "minor"
+
+[tool.versioningit.format]
+distance = "{next_version}.dev{distance}"
+dirty = "{version}+d{build_date:%Y%m%d}"
+distance-dirty = "{next_version}.dev{distance}+d{build_date:%Y%m%d}"
+
+[tool.versioningit.write]
+file = "src/finddata/_version.py"
+
+[tool.versioningit.onbuild]
+source-file = "src/finddata/_version.py"
+build-file = "finddata/_version.py"
+replacement = "{next_version}"
 
 [tool.setuptools.packages.find]
-where = ["finddata"]
-#exclude = ["tests*", "scripts*", "docs*", "notebooks*"]
+where = ["src"]
+exclude = ["tests*", "scripts*", "docs*", "notebooks*"]
 
 [tool.setuptools.package-data]
 "*" = ["*.yml","*.yaml","*.ini"]
 
 [project.scripts]
-finddata = "scripts.finddata:main"
+finddata = "finddata.cli:main"
 
 [project.optional-dependencies]
-bashcompletion = ["/etc/bash_completion.d/finddata.bashcomplete"]
+bashcompletion = ["argcomplete"]
 
 [tool.pytest.ini_options]
 pythonpath = [

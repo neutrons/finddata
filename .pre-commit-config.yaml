@@ -12,6 +12,12 @@ repos:
       exclude: "tests/cis_tests/.*"
     - id: trailing-whitespace
       exclude: "tests/cis_tests/.*"
+- repo: https://github.com/shellcheck-py/shellcheck-py
+  rev: v0.9.0.2
+  hooks:
+  - id: shellcheck
+    # follow sources even when they aren't specified on the command line
+    args: ['--external-sources']
 - repo: https://github.com/astral-sh/ruff-pre-commit
   rev: v0.5.5
   hooks:

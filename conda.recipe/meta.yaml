@@ -37,6 +37,7 @@ requirements:
   run:
     - python
     - urllib3
+    - plotly
 
 test:
   commands:

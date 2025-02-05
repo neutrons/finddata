@@ -37,9 +37,11 @@ requirements:
   run:
     - python
     - urllib3
-    - plotly
+    - plotly<6
 
 test:
+  imports:
+    - finddata.publish_plot
   commands:
     - finddata --help
 

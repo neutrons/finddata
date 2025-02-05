@@ -110,7 +110,7 @@ def getProposal(facility, instrument, run):
 
 
 def getRunsInProp(facility, instrument, proposal):
-    endpoint = "api/experiments/%s" "?facility=%s" "&instrument=%s" "&projection=indexed"
+    endpoint = "api/experiments/%s?facility=%s&instrument=%s&projection=indexed"
     doc = getJson(endpoint % (proposal, facility, instrument))
 
     return doc["indexed"]["run_number"]["ranges"]

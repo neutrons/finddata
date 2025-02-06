@@ -17,4 +17,4 @@ dependencies:
   - toml
   - versioningit
   - urllib3
-  - plotly
+  - plotly<6

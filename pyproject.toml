@@ -2,7 +2,7 @@
 name = "finddata"
 description = "A program to find data files using ONCat"
 dynamic = ["version"]
-#version = "0.10.0"
+#version = "0.10.1"
 #requires-python = ">=3.10"
 dependencies = [
   # list all runtime dependencies here

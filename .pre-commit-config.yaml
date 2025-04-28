@@ -19,7 +19,7 @@ repos:
     # follow sources even when they aren't specified on the command line
     args: ['--external-sources']
 - repo: https://github.com/astral-sh/ruff-pre-commit
-  rev: v0.9.4
+  rev: v0.11.7
   hooks:
     - id: ruff
       args: [--fix, --exit-non-zero-on-fix]

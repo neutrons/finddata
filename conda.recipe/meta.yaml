@@ -20,19 +20,15 @@ source:
 build:
   noarch: python
   number: {{ git_describe_number }}
-  string: py{{py}}
   script: {{ PYTHON }} -m pip install . --no-deps --ignore-installed -vvv
 
 requirements:
   host:
     - python
+    - pip
     - versioningit
     - setuptools
     - wheel
-
-  build:
-    - setuptools
-    - versioningit
 
   run:
     - python

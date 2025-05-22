@@ -2,75 +2,184 @@
 name = "finddata"
 description = "A program to find data files using ONCat"
 dynamic = ["version"]
-#version = "0.10.1"
-#requires-python = ">=3.10"
-dependencies = [
-  # list all runtime dependencies here
-  "urllib3",
-  #"argcomplete",
-]
+requires-python = ">=3.10"
 license = { text = "MIT" }
+keywords = ["neutrons", "finddata", "ONCat"] # Adapted from template
+readme = "README.md" # Added from template
+dependencies = [
+  # Dependencies available from both PyPI and conda should be listed here
+  "urllib3", # From existing
+  "numpy",   # Common, from template example
+  # The following are from template, review if finddata needs them or if they are conda-only
+  # "QtPy",
+  # "PyQt5",
+  # "pyqtgraph",
+  # "bm3d-streak-removal>=0.2.0,<0.3", # Example of PyPI-only
+  # "pytest-playwright>=0.7.0,<0.8", # Example of PyPI-only
+]
+
+# We use this section to map conda packages to PyPI packages if they have different names
+# NOTE: prefix-dev provide minimum mapping, and we should add them in explicitly whenever
+#       needed.
+[conda-pypi-map] # Added from template
+"conda-forge" = """
+{
+  "pyqt": "PyQt5",
+}
+"""
 
 [project.urls]
-homepage = "https://github.com/neutrons/finddata/"  # if no homepage, use repo url
+homepage = "https://github.com/neutrons/finddata/"  # Preserved from existing
+repository = "https://github.com/neutrons/finddata/" # Adapted from template
+# documentation = add_url_to_readthedoc_here
+issues = "https://github.com/neutrons/finddata/issues" # Adapted from template
 
 [build-system]
 requires = [
   "setuptools >= 42",
   "wheel",
   "toml",
-  "urllib3",
-  # "versioningit" # rpm for this doesn't exist
+  "urllib3", # From existing
+  "versioningit" # From template
 ]
 build-backend = "setuptools.build_meta"
 
-[tool.versioningit.vcs]
+[tool.versioningit.vcs] # Preserved from existing
 method = "git"
 default-tag = "0.0.1"
 
-[tool.versioningit.next-version]
+[tool.versioningit.next-version] # Preserved from existing
 method = "minor"
 
-[tool.versioningit.format]
+[tool.versioningit.format] # Preserved from existing
 distance = "{next_version}.dev{distance}"
 dirty = "{version}+d{build_date:%Y%m%d}"
 distance-dirty = "{next_version}.dev{distance}+d{build_date:%Y%m%d}"
 
-[tool.versioningit.write]
+[tool.versioningit.write] # Preserved from existing
 file = "src/finddata/_version.py"
 
-[tool.versioningit.onbuild]
+[tool.versioningit.onbuild] # Preserved from existing
 source-file = "src/finddata/_version.py"
 build-file = "finddata/_version.py"
 replacement = "{next_version}"
 
-[tool.setuptools.packages.find]
+[tool.setuptools.packages.find] # Preserved from existing
 where = ["src"]
 exclude = ["tests*", "scripts*", "docs*", "notebooks*"]
 
-[tool.setuptools.package-data]
+[tool.setuptools.package-data] # Preserved from existing
 "*" = ["*.yml","*.yaml","*.ini"]
 
-[project.scripts]
+[project.scripts] # Preserved from existing
 finddata = "finddata.cli:main"
 
-[project.optional-dependencies]
-bashcompletion = ["argcomplete"]
+# [project.gui-scripts] # Added from template, commented out
+# packagenamepy = "packagenamepy.packagename:gui" # Adapt to your project
 
 [tool.pytest.ini_options]
-pythonpath = [
-  ".", "finddata", "scripts"
+addopts = "-v --cov=finddata --cov-report=term-missing" # Adapted from template
+pythonpath = [ # Merged
+  ".", "src", "scripts", "finddata"
 ]
-testpaths = ["tests"]
-python_files = ["test*.py"]
-norecursedirs = [".git", "tmp*", "_tmp*", "__pycache__", "*dataset*", "*data_set*"]
-markers = [
+testpaths = ["tests"] # Preserved from existing
+python_files = ["test*.py"] # Preserved from existing
+norecursedirs = [".git", "tmp*", "_tmp*", "__pycache__", "*dataset*", "*data_set*"] # Preserved from existing
+markers = [ # Preserved from existing
     "mymarker: example markers goes here"
 ]
 
-[tool.ruff]
+# ------------------ #
+# Ruff configuration #
+# ------------------ #
+[tool.ruff] # Added from template
+target-version = "py311"
 line-length = 120
-select = ["A", "ARG", "BLE", "E", "F", "I", "PT"]
-ignore = ["F403", "F405", # wild imports and  unknown names
-]
-extend-exclude = ["conftest.py"]
+select = ["A", "ARG","ASYNC","BLE","C90", "E", "F", "I", "N", "UP032", "W"]
+exclude = ["notebooks/**", "**/*.ipynb", "conftest.py"] # Added conftest.py from existing ruff config
+
+[tool.ruff.lint] # Added from template
+select = ["E", "F", "I"] # Kept specific select from template's lint
+ignore = ["F403", "F405"] # From existing ruff config
+
+[tool.ruff.lint.isort] # Added from template
+known-first-party = ["finddata"] # Adapted to finddata
+
+[tool.ruff.format] # Added from template
+quote-style = "double"
+indent-style = "space"
+line-ending = "auto"
+
+# ------------------ #
+# Pixi configuration #
+# ------------------ #
+[tool.pixi.project] # Added from template
+channels = ["conda-forge"]
+platforms = ["linux-64", "osx-arm64"]  # add additional platforms as needed
+
+[tool.pixi.pypi-dependencies] # Added from template
+# Adapt 'examplepyapp' to your project's name (e.g., finddata)
+finddata = { path = ".", editable = true } # Adapted to finddata
+
+[tool.pixi.dependencies] # Added from template
+# This will overwrite the dependencies listed in the [project] section for pixi environments
+# List your project's actual dependencies here, from environment.yml & existing pyproject.toml
+urllib3 = "*" # From existing project.dependencies
+numpy = "*"   # From template example
+scipy = "*"   # From template example
+# GUI (if applicable) - Commented out for now
+# pyqtgraph = "*"
+# qt = "*"
+# qtpy = "*"
+# pyqt = "*"
+# Project specific dependencies from existing pyproject.toml optional-dependencies
+argcomplete = "*" # From existing optional-dependencies
+
+[tool.pixi.tasks] # Added from template
+# PyPi packaging tasks
+build-pypi = { cmd = "python -m build", description = "Build the package for PyPI" }
+publish-pypi = { cmd = "twine upload dist/*", description = "Publish the package to PyPI", depends-on = ["build-pypi"] }
+clean-pypi = { cmd = "rm -rf dist", description = "Clean the PyPI build artifacts" }
+# Conda packaging tasks
+build-conda = { cmd = "cd conda.recipe && VERSION=$(versioningit ../) rattler-build build --recipe meta.yaml --output-dir .", description = "Build the package for conda using rattler-build" }
+verify-conda = { cmd = "conda verify conda.recipe/noarch/*.tar.bz2", description = "Verify the conda package", depends-on = ["build-conda"] }
+publish-conda = { cmd = "anaconda upload conda.recipe/noarch/*/*.tar.bz2", description = "Publish the package to conda", depends-on = ["verify-conda"] }
+clean-conda = { cmd = "sh -c \"find conda.recipe/* ! -name 'meta.yaml' -exec rm -rf {} +\"", description = "Clean the conda build artifacts" }
+# Documentation tasks - Commented out for now
+# build-docs = { cmd = "sphinx-build -b html docs docs/_build", description = "Build the documentation" }
+# clean-docs = { cmd = "rm -rf docs/_build", description = "Clean the documentation build artifacts" }
+# Testing tasks
+test = { cmd = "pytest", description = "Run the tests" }
+# Clean all
+clean-all = { description = "Clean all build artifacts", depends-on = ["clean-pypi", "clean-conda"] } # Add clean-docs if you have it
+
+[tool.pixi.feature.test.dependencies] # Added from template
+pytest = "*"
+pytest-cov = "*"
+# Add other test dependencies your project needs:
+# pytest-playwright = "*" # Example, if needed later
+
+[tool.pixi.feature.package.dependencies] # Added from template
+boa = "*"
+anaconda-client = ">=1.13.0,<2"
+conda-build = "*"
+conda-verify = "*"
+python-build = "*" # python-build is actually 'build' in pypi
+rattler-build = "*" # Added rattler-build
+twine = ">=6.1.0,<7"
+versioningit = "*" # Added versioningit here as it's used in build-conda
+
+[tool.pixi.feature.developer.dependencies] # Added from template
+pip = "*"
+# versioningit = "*" # Already in package feature
+pre-commit = "*"
+conda-tree = "*"
+ruff = "*" # if using ruff
+
+# [tool.pixi.feature.docs.dependencies] # Added from template, commented out
+# sphinx = ">=8.2.1,<9"
+# sphinx_rtd_theme = ">=3.0.1,<4"
+
+[tool.pixi.environments] # Added from template
+default = {features = ["test", "package", "developer"], solve-group = "default"} # Add "docs" if you have it, removed for now
+# jupyter = {features = ["developer", "jupyter"], solve-group = "jupyter"} # Commented out

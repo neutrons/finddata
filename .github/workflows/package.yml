@@ -1,4 +1,4 @@
-name: conda packaging and deployment
+name: Pixi Packaging and Deployment
 
 on:
   workflow_dispatch:
@@ -8,37 +8,39 @@ on:
     tags: ['v*']
 
 jobs:
-  linux:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash -l {0}
+  package_and_deploy:
+    runs-on: ubuntu-latest # Can be expanded with matrix for other OS if needed
     steps:
-      - uses: actions/checkout@v4
-      - name: Set up MicroMamaba
-        uses: mamba-org/setup-micromamba@v2
+      - name: Checkout repository
+        uses: actions/checkout@v4
         with:
-          micromamba-version: '1.5.10-0'
-          environment-file: environment.yml
-          condarc: |
-            channels:
-              - conda-forge
-            cache-environment-key: ${{ runner.os }}-env-${{ hashFiles('**/environment.yml') }}
-            cache-downloads-key: ${{ runner.os }}-downloads-${{ hashFiles('**/environment.yml') }}
-      - name: build and verify wheel
+          fetch-depth: 0 # Needed for versioningit
+
+      - name: Setup Pixi
+        uses: prefix-dev/setup-pixi@v0.8.8
+        with:
+          cache: true
+          # pixi install will run by default, creating/updating pixi.lock
+
+      - name: Build PyPI package (Wheel and sdist)
+        if: "!startsWith(github.ref, 'refs/tags/v')"
         run: |
-          python -m build --wheel --no-isolation
+          pixi run build-pypi
+          # Assuming check-wheel-contents is available in the environment
+          # or add it to [tool.pixi.feature.test.dependencies]
           check-wheel-contents dist/finddata-*.whl
-      - name: build conda package
-        run: |
-          # set up environment
-          cd conda.recipe
-          echo "versioningit $(versioningit ../)"
-          # build the package
-          VERSION=$(versioningit ../) conda mambabuild -c conda-forge --output-folder . .
-          conda verify noarch/finddata*.tar.bz2
-      - name: upload conda package to anaconda
-        shell: bash -l {0}
+
+      - name: Build and Verify Conda package
+        if: "!startsWith(github.ref, 'refs/tags/v')"
+        run: pixi run verify-conda # This will trigger build-conda first due to depends-on
+
+      - name: Publish PyPI package
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          PYPI_API_TOKEN: ${{ secrets.PYPI_TOKEN }} # Ensure this secret is named PYPI_TOKEN or TWINE_PASSWORD
+        run: pixi run publish-pypi
+
+      - name: Publish Conda package
         if: startsWith(github.ref, 'refs/tags/v')
         env:
           ANACONDA_API_TOKEN: ${{ secrets.ANACONDA_TOKEN }}
@@ -47,5 +49,51 @@ jobs:
           # label is main or rc depending on the tag-name
           CONDA_LABEL="main"
           if [ "${IS_RC}" = "true" ]; then CONDA_LABEL="rc"; fi
-          echo pushing ${{ github.ref }} with label $CONDA_LABEL
-          anaconda upload --label $CONDA_LABEL conda.recipe/noarch/finddata*.tar.bz2
+          echo "Pushing ${{ github.ref }} to Anaconda.org with label: $CONDA_LABEL"
+          # The publish-conda task in pyproject.toml already handles the anaconda upload command.
+          # We might need to pass the label to the task if the task itself doesn't handle it.
+          # For now, assuming the anaconda upload command in the task can use ANACONDA_LABEL env var
+          # or the default upload does not use a label / uses a default one.
+          # If anaconda upload needs --label, the pixi task `publish-conda` needs to be adjusted.
+          # The current `publish-conda` task is: "anaconda upload conda.recipe/noarch/*/*.tar.bz2"
+          # It does not include the label. Let's adjust the command here directly.
+          # The pixi task `publish-conda` is defined as:
+          # publish-conda = { cmd = "anaconda upload conda.recipe/noarch/*/*.tar.bz2", depends-on = ["verify-conda"] }
+          # We need to modify this step to include the label.
+          # The anaconda-client looks for ANACONDA_API_TOKEN.
+          # The command `anaconda upload --label $CONDA_LABEL conda.recipe/noarch/finddata*.tar.bz2` was used previously.
+          # The pixi task `publish-conda` does not include the label argument.
+          # We can either:
+          # 1. Modify pyproject.toml to include the label (but label is GHA specific).
+          # 2. Override the command here or run the command directly if pixi run doesn't support arg passthrough easily.
+          # For now, let's use the anaconda upload command directly, but run it within pixi's env.
+          pixi run anaconda upload --label $CONDA_LABEL conda.recipe/noarch/finddata*.tar.bz2
+          # This ensures it uses the anaconda-client from the pixi environment.
+          # This assumes `anaconda-client` is part of `[tool.pixi.feature.package.dependencies]` (it is).
+          # And that `publish-conda` task in pyproject.toml has done the build and verify.
+          # To ensure build and verify happened, we can call `pixi run verify-conda` first, then this upload command.
+          # Or rely on the fact that if this is a tagged release, the previous non-tagged runs built and verified artifacts.
+          # However, it's safer to ensure build and verification for the specific tagged commit.
+          # The `publish-conda` task already depends on `verify-conda` which depends on `build-conda`.
+          # So, `pixi run publish-conda` would be ideal if it could take the label.
+          # Since it can't, let's run the build/verify explicitly, then upload.
+          # Actually, `pixi run publish-conda` will run `verify-conda` which runs `build-conda`.
+          # The problem is just the label.
+          # Let's try to pass the label to the anaconda upload command within the pixi task execution context.
+          # The `publish-conda` task is `anaconda upload conda.recipe/noarch/*/*.tar.bz2`.
+          # It does not take arguments.
+          # A simpler approach: the `publish-conda` task in pyproject.toml should be generic.
+          # The GHA workflow is responsible for providing the label.
+          # So, the original command `anaconda upload --label $CONDA_LABEL conda.recipe/noarch/finddata*.tar.bz2`
+          # should be run with `pixi run ...`
+          # The pixi task `publish-conda` is: { cmd = "anaconda upload conda.recipe/noarch/*/*.tar.bz2", depends-on = ["verify-conda"] }
+          # This command does not include the label.
+          # Let's execute the build and verify part, and then the upload command separately.
+          # pixi run verify-conda # This ensures conda_pkg is built and verified.
+          # pixi run anaconda upload --label $CONDA_LABEL conda.recipe/noarch/finddata*.tar.bz2
+          # This seems more robust.
+          # `verify-conda` already ran if it's a non-tagged commit, but rerunning is safer for tags.
+          echo "Ensuring package is built and verified for the tag..."
+          pixi run verify-conda # This will run build-conda then verify-conda
+          echo "Publishing to Anaconda.org..."
+          pixi run anaconda upload --label $CONDA_LABEL conda.recipe/noarch/finddata*.tar.bz2

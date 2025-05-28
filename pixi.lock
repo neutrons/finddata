@@ -229,9 +229,9 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/zipp-3.22.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/zstandard-0.23.0-py312h66e93f0_2.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/zstd-1.5.7-hb8e6e7a_2.conda
-      - pypi: https://files.pythonhosted.org/packages/c9/e0/ade8619846645461c012498f02b93a659e50f07d9d9a6ffefdf5ea2c02a0/narwhals-1.41.0-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/bf/6f/759d5da0517547a5d38aabf05d04d9f8adf83391d2c7fc33f904417d3ba2/plotly-6.1.2-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/e5/ae/580600f441f6fc05218bd6c9d5794f4aef072a7d9093b291f1c50a9db8bc/plotly-5.24.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/fb/13/e3b075031a738c9598c51cfbc4c7879e26729c53aa9cca59211c44235314/regex-2024.11.6-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
+      - pypi: https://files.pythonhosted.org/packages/e5/30/643397144bfbfec6f6ef821f36f33e57d35946c44a2352d3c9f0ae847619/tenacity-9.1.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/fd/72/ca812976bdf9329c0fa641c4c4740b4183520ae4e30a1b3b88d5c8392658/toml_cli-0.7.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/f9/b6/a447b5e4ec71e13871be01ba81f5dfc9d0af7e473da256ff46bc0e24026f/tomlkit-0.13.2-py3-none-any.whl
       - pypi: ./
@@ -446,9 +446,9 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/zipp-3.22.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/zstandard-0.23.0-py312hea69d52_2.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/zstd-1.5.7-h6491c7d_2.conda
-      - pypi: https://files.pythonhosted.org/packages/c9/e0/ade8619846645461c012498f02b93a659e50f07d9d9a6ffefdf5ea2c02a0/narwhals-1.41.0-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/bf/6f/759d5da0517547a5d38aabf05d04d9f8adf83391d2c7fc33f904417d3ba2/plotly-6.1.2-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/e5/ae/580600f441f6fc05218bd6c9d5794f4aef072a7d9093b291f1c50a9db8bc/plotly-5.24.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/60/85/cebcc0aff603ea0a201667b203f13ba75d9fc8668fab917ac5b2de3967bc/regex-2024.11.6-cp312-cp312-macosx_11_0_arm64.whl
+      - pypi: https://files.pythonhosted.org/packages/e5/30/643397144bfbfec6f6ef821f36f33e57d35946c44a2352d3c9f0ae847619/tenacity-9.1.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/fd/72/ca812976bdf9329c0fa641c4c4740b4183520ae4e30a1b3b88d5c8392658/toml_cli-0.7.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/f9/b6/a447b5e4ec71e13871be01ba81f5dfc9d0af7e473da256ff46bc0e24026f/tomlkit-0.13.2-py3-none-any.whl
       - pypi: ./
@@ -1275,10 +1275,10 @@ packages:
   timestamp: 1741969612334
 - pypi: ./
   name: finddata
-  version: 0.11.0.dev6+d20250528
-  sha256: bfd40edd7b43a9c05cda8e0a66fa4ba9a9a16c9fa9043764e4468f6db6fc18c7
+  version: 0.11.0.dev10+d20250528
+  sha256: 0f5d6fddadd7e1d60cee0de6932472e232c9818c7ab74ef492fc94321930c5b6
   requires_dist:
-  - plotly
+  - plotly<6.0.0
   - toml
   - toml-cli>=0.7.0,<0.8
   - urllib3
@@ -2777,26 +2777,6 @@ packages:
   - pkg:pypi/msgpack?source=hash-mapping
   size: 90793
   timestamp: 1725975279147
-- pypi: https://files.pythonhosted.org/packages/c9/e0/ade8619846645461c012498f02b93a659e50f07d9d9a6ffefdf5ea2c02a0/narwhals-1.41.0-py3-none-any.whl
-  name: narwhals
-  version: 1.41.0
-  sha256: d958336b40952e4c4b7aeef259a7074851da0800cf902186a58f2faeff97be02
-  requires_dist:
-  - cudf>=24.10.0 ; extra == 'cudf'
-  - dask[dataframe]>=2024.8 ; extra == 'dask'
-  - duckdb>=1.0 ; extra == 'duckdb'
-  - ibis-framework>=6.0.0 ; extra == 'ibis'
-  - packaging ; extra == 'ibis'
-  - pyarrow-hotfix ; extra == 'ibis'
-  - rich ; extra == 'ibis'
-  - modin ; extra == 'modin'
-  - pandas>=0.25.3 ; extra == 'pandas'
-  - polars>=0.20.3 ; extra == 'polars'
-  - pyarrow>=11.0.0 ; extra == 'pyarrow'
-  - pyspark>=3.5.0 ; extra == 'pyspark'
-  - pyspark[connect]>=3.5.0 ; extra == 'pyspark-connect'
-  - sqlframe>=3.22.0 ; extra == 'sqlframe'
-  requires_python: '>=3.8'
 - conda: https://conda.anaconda.org/conda-forge/noarch/nbformat-5.10.4-pyhd8ed1ab_1.conda
   sha256: 7a5bd30a2e7ddd7b85031a5e2e14f290898098dc85bea5b3a5bf147c25122838
   md5: bbe1963f1e47f594070ffe87cdf612ea
@@ -3095,16 +3075,13 @@ packages:
   - pkg:pypi/platformdirs?source=compressed-mapping
   size: 23531
   timestamp: 1746710438805
-- pypi: https://files.pythonhosted.org/packages/bf/6f/759d5da0517547a5d38aabf05d04d9f8adf83391d2c7fc33f904417d3ba2/plotly-6.1.2-py3-none-any.whl
+- pypi: https://files.pythonhosted.org/packages/e5/ae/580600f441f6fc05218bd6c9d5794f4aef072a7d9093b291f1c50a9db8bc/plotly-5.24.1-py3-none-any.whl
   name: plotly
-  version: 6.1.2
-  sha256: f1548a8ed9158d59e03d7fed548c7db5549f3130d9ae19293c8638c202648f6d
+  version: 5.24.1
+  sha256: f67073a1e637eb0dc3e46324d9d51e2fe76e9727c892dde64ddf1e1b51f29089
   requires_dist:
-  - narwhals>=1.15.1
+  - tenacity>=6.2.0
   - packaging
-  - numpy ; extra == 'express'
-  - kaleido==1.0.0rc13 ; extra == 'kaleido'
-  - black==25.1.0 ; extra == 'dev'
   requires_python: '>=3.8'
 - conda: https://conda.anaconda.org/conda-forge/noarch/pluggy-1.6.0-pyhd8ed1ab_0.conda
   sha256: a8eb555eef5063bbb7ba06a379fa7ea714f57d9741fe0efdb9442dbbc2cccbcc
@@ -4120,6 +4097,17 @@ packages:
   purls: []
   size: 207679
   timestamp: 1725491499758
+- pypi: https://files.pythonhosted.org/packages/e5/30/643397144bfbfec6f6ef821f36f33e57d35946c44a2352d3c9f0ae847619/tenacity-9.1.2-py3-none-any.whl
+  name: tenacity
+  version: 9.1.2
+  sha256: f77bf36710d8b73a50b2dd155c97b870017ad21afe6ab300326b0371b3b05138
+  requires_dist:
+  - reno ; extra == 'doc'
+  - sphinx ; extra == 'doc'
+  - pytest ; extra == 'test'
+  - tornado>=4.5 ; extra == 'test'
+  - typeguard ; extra == 'test'
+  requires_python: '>=3.9'
 - conda: https://conda.anaconda.org/conda-forge/linux-64/tk-8.6.13-noxft_hd72426e_102.conda
   sha256: a84ff687119e6d8752346d1d408d5cf360dee0badd487a472aa8ddedfdc219e1
   md5: a0116df4f4ed05c303811a837d5b39d8

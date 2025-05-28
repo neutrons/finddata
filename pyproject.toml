@@ -120,7 +120,7 @@ finddata = { path = ".", editable = true }
 
 [tool.pixi.package]
 name = "finddata"
-version = "0.0.0" # placeholder, will be replaced by versioningit
+version = "0.0.0" # placeholder, will be updated by task sync-version
 
 [tool.pixi.package.build]
 backend = { name = "pixi-build-python", version = "0.1.*" }
@@ -142,15 +142,21 @@ publish-pypi = { cmd = "twine upload dist/*", description = "Publish the package
   "build-pypi",
 ] }
 # Conda
-# Docs
-# build-docs = { cmd = "sphinx-build -b html docs docs/_build", description = "Build the documentation" }
-# clean-docs = { cmd = "rm -rf docs/_build", description = "Clean the documentation build artifacts" }
+build-conda-command = { cmd = "pixi build", description = "Build the conda package command" }
+build-conda = { description = "Build the conda package", depends-on = [
+  "sync-version",
+  "build-conda-command",
+  "reset-version",
+] }
 # Test
 test = { cmd = "pytest", description = "Run the tests" }
 # MISC
 clean-all = { description = "Clean all build artifacts", depends-on = [
+  "reset-version",
   "clean-pypi",
 ] }
+sync-version = { cmd = "version=$(python -m versioningit); toml set tool.pixi.package.version \"$version\" --toml-path pyproject.toml" }
+reset-version = { cmd = "toml set tool.pixi.package.version \"0.0.0\" --toml-path pyproject.toml", description = "Reset the package version to 0.0.0" }
 
 [tool.pixi.feature.test.dependencies]
 pytest = "*"

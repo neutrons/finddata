@@ -1275,12 +1275,12 @@ packages:
   timestamp: 1741969612334
 - pypi: ./
   name: finddata
-  version: 0.8.0.dev42+d20250528
-  sha256: bc2cf711f1496e3bd9be4bce885162902b9ab0653929a3cdfbba2c43730ee121
+  version: 0.8.0.dev43+d20250528
+  sha256: 67bcd4a278be5fe08f6a16758581115c77144209afd2604e8b2ffe74652d0a49
   requires_dist:
   - plotly
   - toml
-  - toml-cli
+  - toml-cli>=0.7.0,<0.8
   - urllib3
   requires_python: '>=3.11'
   editable: true

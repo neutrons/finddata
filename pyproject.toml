@@ -10,7 +10,7 @@ requires-python = ">=3.11"
 license = { text = "MIT" }
 keywords = ["neutrons", "finddata", "ONCat"]
 readme = "README.md"
-dependencies = ["urllib3", "toml", "plotly"]
+dependencies = ["urllib3", "toml", "plotly", "toml-cli>=0.7.0,<0.8"]
 
 [project.scripts]
 finddata = "finddata.cli:main"
@@ -41,7 +41,7 @@ source = "versioningit"
 [tool.hatch.build.hooks.versioningit-onbuild]
 source-file = "src/finddata/_version.py"
 build-file = "finddata/_version.py"
-replacement = "{next_version}"
+replacement = '"{next_version}"'
 
 [tool.hatch.build]
 artifacts = ["src/finddata/_version.py"]

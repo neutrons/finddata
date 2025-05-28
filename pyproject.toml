@@ -120,7 +120,7 @@ finddata = { path = ".", editable = true }
 
 [tool.pixi.package]
 name = "finddata"
-version = "0.0.0" # placeholder, will be updated by task sync-version
+version = "0.0.0" # placeholder, can be updated by task sync-version
 
 [tool.pixi.package.build]
 backend = { name = "pixi-build-python", version = "0.1.*" }

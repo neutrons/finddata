@@ -1,29 +1,54 @@
 [project]
 name = "finddata"
+authors = [
+  { name = "Pete Peterson", email = "petersonpf@ornl.gov" },
+  { name = "Chen Zhang", email = "zhangc@ornl.gov" },
+]
 description = "A program to find data files using ONCat"
 dynamic = ["version"]
-#version = "0.10.1"
-#requires-python = ">=3.10"
-dependencies = [
-  # list all runtime dependencies here
-  "urllib3",
-  #"argcomplete",
-]
+requires-python = ">=3.11"
 license = { text = "MIT" }
+keywords = ["neutrons", "finddata", "ONCat"]
+readme = "README.md"
+dependencies = ["urllib3", "toml", "plotly", "toml-cli>=0.7.0,<0.8"]
+
+[project.scripts]
+finddata = "finddata.cli:main"
 
 [project.urls]
-homepage = "https://github.com/neutrons/finddata/"  # if no homepage, use repo url
+homepage = "https://github.com/neutrons/finddata/"
+repository = "https://github.com/neutrons/finddata/"
+documentation = "https://github.com/neutrons/finddata/"
+issues = "https://github.com/neutrons/finddata/issues"
+
+[conda-pypi-map]
+"conda-forge" = """
+{
+  "pyqt": "PyQt5",
+}
+"""
 
 [build-system]
-requires = [
-  "setuptools >= 42",
-  "wheel",
-  "toml",
-  "urllib3",
-  # "versioningit" # rpm for this doesn't exist
-]
-build-backend = "setuptools.build_meta"
+build-backend = "hatchling.build"
+requires = ["hatchling", "versioningit"]
 
+# ------------------- #
+# Hatch configuration #
+# ------------------- #
+[tool.hatch.version]
+source = "versioningit"
+
+[tool.hatch.build.hooks.versioningit-onbuild]
+source-file = "src/finddata/_version.py"
+build-file = "finddata/_version.py"
+replacement = '"{next_version}"'
+
+[tool.hatch.build]
+artifacts = ["src/finddata/_version.py"]
+
+# -------------------------- #
+# Versioningit configuration #
+# -------------------------- #
 [tool.versioningit.vcs]
 method = "git"
 default-tag = "0.0.1"
@@ -39,38 +64,125 @@ distance-dirty = "{next_version}.dev{distance}+d{build_date:%Y%m%d}"
 [tool.versioningit.write]
 file = "src/finddata/_version.py"
 
-[tool.versioningit.onbuild]
-source-file = "src/finddata/_version.py"
-build-file = "finddata/_version.py"
-replacement = "{next_version}"
-
-[tool.setuptools.packages.find]
-where = ["src"]
-exclude = ["tests*", "scripts*", "docs*", "notebooks*"]
-
-[tool.setuptools.package-data]
-"*" = ["*.yml","*.yaml","*.ini"]
-
-[project.scripts]
-finddata = "finddata.cli:main"
-
-[project.optional-dependencies]
-bashcompletion = ["argcomplete"]
-
+# -------------------- #
+# PyTest configuration #
+# -------------------- #
 [tool.pytest.ini_options]
-pythonpath = [
-  ".", "finddata", "scripts"
-]
+addopts = "-v --cov=finddata --cov-report=term-missing"
+pythonpath = [".", "src", "scripts", "finddata"]
 testpaths = ["tests"]
 python_files = ["test*.py"]
-norecursedirs = [".git", "tmp*", "_tmp*", "__pycache__", "*dataset*", "*data_set*"]
-markers = [
-    "mymarker: example markers goes here"
+norecursedirs = [
+  ".git",
+  "tmp*",
+  "_tmp*",
+  "__pycache__",
+  "*dataset*",
+  "*data_set*",
 ]
+markers = ["mymarker: example markers goes here"]
 
+# ------------------ #
+# Ruff configuration #
+# ------------------ #
 [tool.ruff]
+target-version = "py311"
 line-length = 120
-select = ["A", "ARG", "BLE", "E", "F", "I", "PT"]
-ignore = ["F403", "F405", # wild imports and  unknown names
+select = ["A", "ARG", "ASYNC", "BLE", "C90", "E", "F", "I", "N", "UP032", "W"]
+exclude = ["notebooks/**", "**/*.ipynb", "conftest.py"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+ignore = ["F403", "F405"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["finddata"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "auto"
+
+# ------------------ #
+# Pixi configuration #
+# ------------------ #
+[tool.pixi.workspace]
+preview = ["pixi-build"] # Need this to access pixi-build feature
+channels = [
+  "conda-forge",
+  "https://prefix.dev/pixi-build-backends",
+  "https://prefix.dev/conda-forge",
 ]
-extend-exclude = ["conftest.py"]
+platforms = ["linux-64", "osx-arm64"]
+
+[tool.pixi.pypi-dependencies]
+finddata = { path = ".", editable = true }
+
+[tool.pixi.package]
+name = "finddata"
+version = "0.0.0" # placeholder, can be updated by task sync-version
+
+[tool.pixi.package.build]
+backend = { name = "pixi-build-python", version = "0.1.*" }
+
+[tool.pixi.package.host-dependencies]
+hatchling = "*"
+versioningit = "*"
+
+[tool.pixi.package.run-dependencies]
+urllib3 = "*"
+plotly = "<6.0.0"
+
+
+[tool.pixi.tasks]
+# PyPI
+build-pypi = { cmd = "python -m build", description = "Build the package for PyPI" }
+clean-pypi = { cmd = "rm -rf dist", description = "Clean the PyPI build artifacts" }
+publish-pypi = { cmd = "twine upload dist/*", description = "Publish the package to PyPI", depends-on = [
+  "build-pypi",
+] }
+# Conda
+build-conda-command = { cmd = "pixi build", description = "Build the conda package command" }
+build-conda = { description = "Build the conda package", depends-on = [
+  "sync-version",
+  "build-conda-command",
+  "reset-version",
+] }
+# Test
+test = { cmd = "pytest", description = "Run the tests" }
+# MISC
+clean-all = { description = "Clean all build artifacts", depends-on = [
+  "reset-version",
+  "clean-pypi",
+] }
+sync-version = { cmd = "version=$(python -m versioningit); toml set tool.pixi.package.version \"$version\" --toml-path pyproject.toml" }
+reset-version = { cmd = "toml set tool.pixi.package.version \"0.0.0\" --toml-path pyproject.toml", description = "Reset the package version to 0.0.0" }
+
+[tool.pixi.feature.test.dependencies]
+pytest = "*"
+pytest-cov = "*"
+
+[tool.pixi.feature.package.dependencies]
+boa = "*"
+anaconda-client = ">=1.13.0,<2"
+twine = ">=6.1.0,<7"
+versioningit = "*"
+
+[tool.pixi.feature.developer.dependencies]
+pip = "*"
+versioningit = "*"
+pre-commit = "*"
+conda-tree = "*"
+ruff = "*"
+
+[tool.pixi.feature.docs.dependencies]
+sphinx = ">=8.2.1,<9"
+sphinx_rtd_theme = ">=3.0.1,<4"
+
+[tool.pixi.environments]
+default = { features = [
+  "test",
+  "package",
+  "developer",
+  "docs",
+], solve-group = "default" }

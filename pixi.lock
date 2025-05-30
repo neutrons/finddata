@@ -1227,8 +1227,8 @@ packages:
   timestamp: 1741969612334
 - pypi: ./
   name: finddata
-  version: 0.11.0.dev15+d20250530
-  sha256: b013b731001eb08513dc1cebb83d3fe41fbcd6098f1947c138a2d4aff95f754b
+  version: 0.11.0.dev17+d20250530
+  sha256: 250efe0eed667f641bea5336bbc27eed3afe1c5d18215baca4d78538e812b808
   requires_dist:
   - plotly<6.0.0
   - toml

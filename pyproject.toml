@@ -98,7 +98,7 @@ select = [
   "UP032",
   "W",
 ]
-ignore = ["F403", "F405"]
+ignore = ["F403", "F405", "N802", "N803", "C901", "N806"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["finddata"]

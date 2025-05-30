@@ -89,7 +89,7 @@ markers = ["mymarker: example markers goes here"]
 target-version = "py311"
 line-length = 120
 select = ["A", "ARG", "ASYNC", "BLE", "C90", "E", "F", "I", "N", "PT", "UP032", "W"]
-exclude = ["notebooks/**", "**/*.ipynb", "conftest.py"]
+exclude = ["conftest.py"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I"]

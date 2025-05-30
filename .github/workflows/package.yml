@@ -1,4 +1,4 @@
-name: conda packaging and deployment
+name: Pixi Packaging and Deployment
 
 on:
   workflow_dispatch:
@@ -10,35 +10,25 @@ on:
 jobs:
   linux:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash -l {0}
     steps:
       - uses: actions/checkout@v4
-      - name: Set up MicroMamaba
-        uses: mamba-org/setup-micromamba@v2
         with:
-          micromamba-version: '1.5.10-0'
-          environment-file: environment.yml
-          condarc: |
-            channels:
-              - conda-forge
-            cache-environment-key: ${{ runner.os }}-env-${{ hashFiles('**/environment.yml') }}
-            cache-downloads-key: ${{ runner.os }}-downloads-${{ hashFiles('**/environment.yml') }}
-      - name: build and verify wheel
+          fetch-depth: 0  # Fetch all history for accurate versioning
+          fetch-tags: true  # Fetch tags to ensure versioning works correctly
+      - uses: prefix-dev/setup-pixi@v0.8.8
+        with:
+          pixi-version: v0.41.4
+          manifest-path: pyproject.toml
+      - name: finddata version
         run: |
-          python -m build --wheel --no-isolation
-          check-wheel-contents dist/finddata-*.whl
+          pixi run finddata --version
+      - name: build pypi package
+        run: |
+          pixi run build-pypi
       - name: build conda package
         run: |
-          # set up environment
-          cd conda.recipe
-          echo "versioningit $(versioningit ../)"
-          # build the package
-          VERSION=$(versioningit ../) conda mambabuild -c conda-forge --output-folder . .
-          conda verify noarch/finddata*.tar.bz2
+          pixi run build-conda
       - name: upload conda package to anaconda
-        shell: bash -l {0}
         if: startsWith(github.ref, 'refs/tags/v')
         env:
           ANACONDA_API_TOKEN: ${{ secrets.ANACONDA_TOKEN }}
@@ -48,4 +38,4 @@ jobs:
           CONDA_LABEL="main"
           if [ "${IS_RC}" = "true" ]; then CONDA_LABEL="rc"; fi
           echo pushing ${{ github.ref }} with label $CONDA_LABEL
-          anaconda upload --label $CONDA_LABEL conda.recipe/noarch/finddata*.tar.bz2
+          pixi run anaconda upload --label $CONDA_LABEL --user neutrons finddata-*.conda

@@ -60,7 +60,7 @@ def getJson(endpoint):
     http = PoolManager()
     req = http.request("GET", url, headers={"User-Agent": f"Finddata/{__version__}"})
     if req.status != 200:
-        raise RuntimeError("{} returned code={}".format(url, req.status))
+        raise RuntimeError(f"{url} returned code={req.status}")
 
     # convert the result into json
     doc = req.data.decode()
@@ -72,11 +72,11 @@ def getInstruments(facility, withLower=False):
     """
     Hit ONCat to find out the list of instruments at the facility.
     """
-    endpoint = "api/instruments?facility={}".format(facility)
+    endpoint = f"api/instruments?facility={facility}"
     doc = getJson(endpoint)
     if len(doc) == 0:
         url = BASE_URL + endpoint
-        raise RuntimeError("Failed to find instruments from {}".format(url))
+        raise RuntimeError(f"Failed to find instruments from {url}")
 
     # convert to actual instruments
     instr_str = [instrument["id"] for instrument in doc]
@@ -123,7 +123,7 @@ def getFileLoc(facility, instrument, runs):
 
     @return The first path that works (as suggested by ONCat) or None.
     """
-    logging.info("Looking for {}/{} runs {}".format(facility, instrument, runs))
+    logging.info(f"Looking for {facility}/{instrument} runs {runs}")
     endpoint = (
         "api/datafiles"
         "?facility={}"
@@ -152,7 +152,7 @@ def getFileLoc(facility, instrument, runs):
     locations = {}
     for location, runid in result:
         locations[runid] = location
-    logging.debug("ONCAT returned locations (that exist): {}".format(locations))
+    logging.debug(f"ONCAT returned locations (that exist): {locations}")
 
     # put together a list of what was found
     result = []

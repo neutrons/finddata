@@ -1227,14 +1227,14 @@ packages:
   timestamp: 1741969612334
 - pypi: ./
   name: finddata
-  version: 0.11.0.dev18
-  sha256: 250efe0eed667f641bea5336bbc27eed3afe1c5d18215baca4d78538e812b808
+  version: 0.11.0.dev7+d20250604
+  sha256: b64068478faabe2998f1253d7cfa25bd7bd8c50923bba275e5590948ebe4a384
   requires_dist:
   - plotly<6.0.0
   - toml
   - toml-cli>=0.7.0,<0.8
   - urllib3
-  requires_python: '>=3.11'
+  requires_python: '>=3.9'
   editable: true
 - conda: https://conda.anaconda.org/conda-forge/linux-64/fmt-11.1.4-h07f6e7f_1.conda
   sha256: 2db2a6a1629bc2ac649b31fd990712446394ce35930025e960e1765a9249af5d

@@ -10,19 +10,42 @@ if [ -z "${VERSION}" ]; then
 fi
 echo "Version is ${VERSION}"
 
+# check that pixi is installed
+if [ ! "$(command -v pixi)" ]; then
+    echo "This script requires pixi to be installed"
+    exit 127
+fi
+
 # create the tarball
 echo "building sdist..."
-python -m build --sdist --outdir . --no-isolation || exit 127
+#pixi run sync-version || exit 127
+pixi run build-sdist || exit 127
+#finddata-0.11.0.dev7+d20250530.tar.gz
+#python -m build --sdist --outdir . --no-isolation || exit 127
 
-TARBALL_SRC="finddata-$(versioningit).tar.gz" # created
+TARBALL_SRC="finddata-$(pixi run versioningit).tar.gz" # created
 TARBALL_TGT="finddata-${VERSION}.tar.gz" # what we want
 # fixup the tarball if necessary
 if [ "${TARBALL_SRC}" != "${TARBALL_TGT}" ]; then
     echo "cleaning up tarball"
     rm -rf "finddata-${VERSION}"
     mkdir "python-finddata-${VERSION}"
-    tar xzf "${TARBALL_SRC}" --strip 1 -C "python-finddata-${VERSION}" || exit 127
+
+    echo "unpacking ${TARBALL_SRC}"
+    tar xzf "sdist/${TARBALL_SRC}" --strip 1 -C "python-finddata-${VERSION}" || exit 127
     rm "${TARBALL_SRC}"
+
+    # set a fixed version number
+    echo "modify the pyproject.toml"
+    pixi run toml unset project.dynamic --toml-path python-finddata-"${VERSION}"/pyproject.toml || exit 127
+    pixi run toml set project.version "${VERSION}" --toml-path python-finddata-"${VERSION}"/pyproject.toml || exit 127
+    pixi run toml unset tool.versioningit --toml-path python-finddata-"${VERSION}"/pyproject.toml || exit 127
+    pixi run toml unset tool.hatch.version --toml-path python-finddata-"${VERSION}"/pyproject.toml || exit 127
+    pixi run toml unset tool.hatch.build.hooks.versioningit-onbuild --toml-path python-finddata-"${VERSION}"/pyproject.toml || exit 127
+    # remove dependencies since rpm will handle them
+    pixi run toml unset project.dependencies --toml-path python-finddata-"${VERSION}"/pyproject.toml || exit 127
+
+    echo "create tarball with correct name"
     tar czf "${TARBALL_TGT}" "python-finddata-${VERSION}" || exit 127
     rm -rf "python-finddata-${VERSION}"
 fi
@@ -30,10 +53,6 @@ fi
 # setup rpm directories for building - renames the tarball
 mkdir -p "${HOME}"/rpmbuild/SOURCES
 cp "${TARBALL_TGT}" "${HOME}/rpmbuild/SOURCES/${TARBALL_TGT}" || exit 127
-# move the patchfile into position
-# it can be created by editing pyproject.toml then having git create it
-# git diff -P pyproject.toml > pyproject.patch && git checkout pyproject.toml
-cp pyproject.patch "${HOME}/rpmbuild/SOURCES/finddata-pyproject.patch" || exit 127
 
 # build the rpm and give instructions
 echo "building the rpm"
@@ -44,4 +63,4 @@ rpmbuild -ba finddata.spec || exit 127
 DIST=$(rpm --eval %{?dist})
 echo "========================================"
 echo "Successfully built rpm. To manually inspect package run"
-echo "rpm -qilRp ~/rpmbuild/RPMS/noarch/python3.11-finddata-${VERSION}-1${DIST}.noarch.rpm"
+echo "rpm -qilRp ~/rpmbuild/RPMS/noarch/python3-finddata-${VERSION}-1${DIST}.noarch.rpm"

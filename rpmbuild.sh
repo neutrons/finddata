@@ -18,10 +18,7 @@ fi
 
 # create the tarball
 echo "building sdist..."
-#pixi run sync-version || exit 127
 pixi run build-sdist || exit 127
-#finddata-0.11.0.dev7+d20250530.tar.gz
-#python -m build --sdist --outdir . --no-isolation || exit 127
 
 TARBALL_SRC="finddata-$(pixi run versioningit).tar.gz" # created
 TARBALL_TGT="finddata-${VERSION}.tar.gz" # what we want

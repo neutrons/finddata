@@ -2,11 +2,11 @@
 %global summary Find data files using ONCat
 %define release 1
 # default python3=python3.9 on rhel9 which is too old
-%define python3_pkgversion 3.11
+%define python3_pkgversion 3
 
 Summary: %{summary}
 Name: python-%{srcname}
-Version: 0.10.1
+Version: 0.11.0
 Release: %{release}%{?dist}
 Source: %{srcname}-%{version}.tar.gz
 License: MIT
@@ -17,8 +17,6 @@ BuildArch: noarch
 Vendor: Pete Peterson <petersonpf@ornl.gov>
 Url: https://github.com/neutrons/finddata
 Obsoletes: python3-finddata < 0.10
-
-Patch1: finddata-pyproject.patch
 
 %description
 Finddata uses ONCat to locate the full path of files on the NScD clusters.

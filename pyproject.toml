@@ -6,7 +6,7 @@ authors = [
 ]
 description = "A program to find data files using ONCat"
 dynamic = ["version"]
-requires-python = ">=3.11"
+requires-python = ">=3.9"
 license = { text = "MIT" }
 keywords = ["neutrons", "finddata", "ONCat"]
 readme = "README.md"
@@ -141,6 +141,7 @@ plotly = "<6.0.0"
 
 [tool.pixi.tasks]
 # PyPI
+build-sdist = { cmd = "hatch build sdist", description = "Build the source distribution (tar.gz)" }
 build-pypi = { cmd = "hatch build", description = "Build the package for PyPI" }
 clean-pypi = { cmd = "rm -rf dist", description = "Clean the PyPI build artifacts" }
 publish-pypi = { cmd = "twine upload dist/*", description = "Publish the package to PyPI", depends-on = [

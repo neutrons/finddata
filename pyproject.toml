@@ -10,7 +10,7 @@ requires-python = ">=3.9"
 license = { text = "MIT" }
 keywords = ["neutrons", "finddata", "ONCat"]
 readme = "README.md"
-dependencies = ["urllib3", "toml", "plotly<6.0.0", "toml-cli>=0.7.0,<0.8"]
+dependencies = ["urllib3", "plotly<6.0.0", "toml"]
 
 [project.scripts]
 finddata = "finddata.cli:main"
@@ -122,6 +122,8 @@ platforms = ["linux-64", "osx-arm64"]
 
 [tool.pixi.pypi-dependencies]
 finddata = { path = ".", editable = true }
+toml-cli = ">=0.7.0,<0.8"
+ty = ">=0.0.1a8,<0.0.1a9"
 
 [tool.pixi.package]
 name = "finddata"
@@ -165,7 +167,6 @@ sync-version = { cmd = "version=$(python -m versioningit); toml set tool.pixi.pa
 reset-version = { cmd = "toml set tool.pixi.package.version \"0.0.0\" --toml-path pyproject.toml", description = "Reset the package version to 0.0.0" }
 
 [tool.pixi.feature.package.dependencies]
-boa = "*"
 anaconda-client = ">=1.13.0,<2"
 twine = ">=6.1.0,<7"
 versioningit = "*"
@@ -176,8 +177,7 @@ pip = "*"
 versioningit = "*"
 pre-commit = "*"
 conda-tree = "*"
-ruff = "*"
-
+argcomplete = "*"
 
 [tool.pixi.environments]
 default = { features = ["package", "developer"], solve-group = "default" }

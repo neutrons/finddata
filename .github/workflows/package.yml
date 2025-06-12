@@ -11,13 +11,13 @@ jobs:
   linux:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0  # Fetch all history for accurate versioning
           fetch-tags: true  # Fetch tags to ensure versioning works correctly
       - uses: prefix-dev/setup-pixi@v0.8.10
         with:
-          pixi-version: v0.48.0
+          pixi-version: v0.47.0
           manifest-path: pyproject.toml
       - name: finddata version
         run: |

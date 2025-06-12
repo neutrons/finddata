@@ -9,3 +9,7 @@ updates:
     directory: "/" # Workflow files stored in the default location of `.github/workflows`
     schedule:
       interval: "weekly"
+  - packages-echosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"

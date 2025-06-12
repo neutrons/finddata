@@ -13,3 +13,11 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+  - package-ecosystem: "github-actions" # update pixi version https://github.com/prefix-dev/setup-pixi
+    directory: /
+    schedule:
+      interval: monthly # or daily, weekly
+    groups:
+      dependencies:
+        patterns:
+          - '*'

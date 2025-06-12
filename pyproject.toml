@@ -10,7 +10,17 @@ requires-python = ">=3.9"
 license = { text = "MIT" }
 keywords = ["neutrons", "finddata", "ONCat"]
 readme = "README.md"
-dependencies = ["urllib3", "toml", "plotly<6.0.0", "toml-cli>=0.7.0,<0.8"]
+dependencies = [
+  "urllib3",
+  "argcomplete",
+  "toml",
+  "toml-cli>=0.7.0,<0.8",
+]
+
+[project.optional-dependencies]
+local = [
+    "plot-publisher @ file:///home/dzj/plot_publisher",
+]
 
 [project.scripts]
 finddata = "finddata.cli:main"
@@ -38,6 +48,9 @@ replacement = '"{next_version}"'
 
 [tool.hatch.build]
 artifacts = ["src/finddata/_version.py"]
+
+[tool.hatch.metadata]
+allow-direct-references = true
 
 # -------------------------- #
 # Versioningit configuration #

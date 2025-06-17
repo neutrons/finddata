@@ -178,10 +178,6 @@ def main():
     # set up optparse
     import argparse  # for command line options
 
-    try:
-        import argcomplete  # for bash completion
-    except ImportError:
-        argcomplete = None
     parser = argparse.ArgumentParser(description="Find data files using ICAT")
 
     parser.add_argument("inst", nargs="?", help="Specify the instrument name", choices=FACILITY.keys())
@@ -201,8 +197,13 @@ def main():
     parser.add_argument("--listruns", dest="listruns", help="List all of the runs in a proposal")
 
     # set up bash completion
-    if argcomplete:
+    try:
+        import argcomplete  # for bash completion
+
         argcomplete.autocomplete(parser)
+    except ImportError:
+        pass  # argcomplete is optional
+
     # parse the command line
     options = parser.parse_args()
 

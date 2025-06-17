@@ -4,7 +4,11 @@ import logging
 import os
 
 try:
-    from postprocessing.Configuration import CONFIG_FILE, CONFIG_FILE_ALTERNATE, Configuration
+    from postprocessing.Configuration import (  # ty: ignore[unresolved-import]
+        CONFIG_FILE,
+        CONFIG_FILE_ALTERNATE,
+        Configuration,
+    )
 except ImportError:
     # Local dev only, mocking Configuration as needed
     CONFIG_FILE = "/etc/autoreduce/post_processing.conf"
@@ -119,7 +123,7 @@ def publish_plot(instrument, run_number, files, config=None):
             verify=False,
         )
 
-    if response.status_code != requests.codes.ok:
+    if response.status_code != requests.codes.ok:  # ty: ignore[possibly-unbound-attribute]
         logging.error("Publish plot failed with return code: %d", response.status_code)
         response.raise_for_status()  # throw requests.HTTPError error with details
     return response

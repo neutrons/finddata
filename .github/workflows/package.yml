@@ -21,17 +21,7 @@ jobs:
       - name: finddata version
         run: |
           pixi run finddata --version
-      - name: get changes
-        uses: dorny/paths-filter@v3
-        id: changes
-        with:
-          base: main
-          filters : |
-            lockfile:
-              - 'pixi.lock'
-              - 'pyproject.toml'
       - name: dependency check
-        if: steps.changes.outputs.lockfile == 'true'
         run: |
           pixi run audit-deps
       - name: build pypi package

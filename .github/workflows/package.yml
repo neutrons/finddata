@@ -21,6 +21,9 @@ jobs:
       - name: finddata version
         run: |
           pixi run finddata --version
+      - name: dependency check
+        run: |
+          pixi run audit-deps
       - name: build pypi package
         run: |
           pixi run build-pypi

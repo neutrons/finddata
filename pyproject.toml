@@ -164,7 +164,7 @@ clean-all = { description = "Clean all build artifacts", depends-on = [
   "clean-pypi",
   "clean-conda",
 ] }
-sync-version = { cmd = "version=$(python -m versioningit); toml set tool.pixi.package.version \"$version\" --toml-path pyproject.toml" }
+sync-version = { cmd = 'version=$(python -m versioningit); toml set tool.pixi.package.version "$version" --toml-path pyproject.toml', description = "Sync pyproject.toml version with Git version" }
 reset-version = { cmd = "toml set tool.pixi.package.version \"0.0.0\" --toml-path pyproject.toml", description = "Reset the package version to 0.0.0" }
 # ignore pillow error because it is only used by anaconda-client v1.13.0
 audit-deps = { cmd = "pip-audit --local -s osv --ignore-vuln=PYSEC-2025-61" }

@@ -22,9 +22,9 @@ jobs:
       - name: Dependency check
         run: |
           pixi run audit-deps
-      - name: build pypi package
-        run: |
-          pixi run build-pypi
+      #- name: build pypi package
+      #  run: |
+      #    pixi run build-pypi
 
 
   package:

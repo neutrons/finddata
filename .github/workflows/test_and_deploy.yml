@@ -20,11 +20,13 @@ jobs:
         run: |
           pixi run finddata --version
       - name: Dependency check
-        run: |
-          pixi run audit-deps
-        #- name: build pypi package
-        #  run: |
-        #    pixi run build-pypi
+        uses: pypa/gh-action-pip-audit@v1.1.0
+        with:
+          local: true
+          vulnerability-service: osv
+          # ignore pillow error because it is only used by anaconda-client
+          ignore-vulns: |
+            PYSEC-2025-61
   package:
     runs-on: ubuntu-24.04
     steps:

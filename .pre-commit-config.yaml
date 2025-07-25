@@ -1,5 +1,6 @@
 ci:
   autofix_prs: true
+  skip: [taplo-lint]
 exclude: "^pixi.lock$"
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -32,7 +33,7 @@ repos:
     rev: v0.9.3
     hooks:
       - id: taplo-format
-      - id: taplo-lint
+      - id: taplo-lint # makes web calls so can't be used in CI
   - repo: local
     hooks:
       - id: pixi-lock-check

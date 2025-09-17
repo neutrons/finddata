@@ -5,6 +5,8 @@ on:
   push:
     branches: [main]
     tags: ['v*']
+env:
+  PKG_NAME: finddata
 jobs:
   tests:
     runs-on: ubuntu-24.04

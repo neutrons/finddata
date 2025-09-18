@@ -22,34 +22,37 @@ pixi run build-sdist || exit 127
 
 TARBALL_SRC="finddata-$(pixi run versioningit).tar.gz" # created
 TARBALL_TGT="finddata-${VERSION}.tar.gz" # what we want
-# fixup the tarball if necessary
-if [ "${TARBALL_SRC}" != "${TARBALL_TGT}" ]; then
-    echo "cleaning up tarball"
-    rm -rf "finddata-${VERSION}"
-    mkdir "python-finddata-${VERSION}"
+# fixup the tarball
+echo "cleaning up tarball"
+rm -rf "python-finddata-${VERSION}"
+mkdir "python-finddata-${VERSION}"
 
-    echo "unpacking ${TARBALL_SRC}"
-    tar xzf "sdist/${TARBALL_SRC}" --strip 1 -C "python-finddata-${VERSION}" || exit 127
-    rm "${TARBALL_SRC}"
+echo "unpacking ${TARBALL_SRC}"
+tar xzf "sdist/${TARBALL_SRC}" --strip 1 -C "python-finddata-${VERSION}" || exit 127
+rm "sdist/${TARBALL_SRC}"
 
-    # set a fixed version number
-    echo "modify the pyproject.toml"
-    pixi run toml unset project.dynamic --toml-path python-finddata-"${VERSION}"/pyproject.toml || exit 127
-    pixi run toml set project.version "${VERSION}" --toml-path python-finddata-"${VERSION}"/pyproject.toml || exit 127
-    pixi run toml unset tool.versioningit --toml-path python-finddata-"${VERSION}"/pyproject.toml || exit 127
-    pixi run toml unset tool.hatch.version --toml-path python-finddata-"${VERSION}"/pyproject.toml || exit 127
-    pixi run toml unset tool.hatch.build.hooks.versioningit-onbuild --toml-path python-finddata-"${VERSION}"/pyproject.toml || exit 127
-    # remove dependencies since rpm will handle them
-    pixi run toml unset project.dependencies --toml-path python-finddata-"${VERSION}"/pyproject.toml || exit 127
+# set a fixed version number
+echo "modify the pyproject.toml"
+pixi run toml unset project.dynamic --toml-path python-finddata-"${VERSION}"/pyproject.toml || exit 127
+pixi run toml set project.version "${VERSION}" --toml-path python-finddata-"${VERSION}"/pyproject.toml || exit 127
+pixi run toml unset tool.versioningit --toml-path python-finddata-"${VERSION}"/pyproject.toml || exit 127
+pixi run toml unset tool.hatch.version --toml-path python-finddata-"${VERSION}"/pyproject.toml || exit 127
+pixi run toml unset tool.hatch.build.hooks.versioningit-onbuild --toml-path python-finddata-"${VERSION}"/pyproject.toml || exit 127
+# remove dependencies since rpm will handle them
+pixi run toml unset project.dependencies --toml-path python-finddata-"${VERSION}"/pyproject.toml || exit 127
 
-    echo "create tarball with correct name"
-    tar czf "${TARBALL_TGT}" "python-finddata-${VERSION}" || exit 127
-    rm -rf "python-finddata-${VERSION}"
-fi
+echo "create tarball with correct name"
+tar czf "${TARBALL_TGT}" "python-finddata-${VERSION}" || exit 127
+rm -rf "python-finddata-${VERSION}"
 
 # setup rpm directories for building - renames the tarball
-mkdir -p "${HOME}"/rpmbuild/SOURCES
-cp "${TARBALL_TGT}" "${HOME}/rpmbuild/SOURCES/${TARBALL_TGT}" || exit 127
+if [ -f "${TARBALL_TGT}" ]; then
+    mkdir -p "${HOME}"/rpmbuild/SOURCES
+    cp "${TARBALL_TGT}" "${HOME}/rpmbuild/SOURCES/${TARBALL_TGT}" || exit 127
+else
+    echo "Failed to find ${TARBALL_TGT}"
+    exit 127
+fi
 
 # build the rpm and give instructions
 echo "building the rpm"

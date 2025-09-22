@@ -143,9 +143,10 @@ hatchling = "*"
 versioningit = "*"
 
 [tool.pixi.package.run-dependencies]
-urllib3 = "*"
-plotly = "*"
-toml = "*"
+h2 = ">=4.3.0,<5"
+plotly = "<6.0"
+toml = ">=0.10,<0.11"
+urllib3 = ">=2.5,<3"
 
 [tool.pixi.tasks]
 # PyPI

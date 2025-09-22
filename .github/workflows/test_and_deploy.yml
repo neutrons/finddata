@@ -17,7 +17,7 @@ jobs:
           fetch-depth: 0 # Fetch all history for accurate versioning
           fetch-tags: true # Fetch tags to ensure versioning works correctly
       - name: Setup Pixi
-        uses: prefix-dev/setup-pixi@v0.9.0
+        uses: prefix-dev/setup-pixi@v0.9.1
       - name: finddata version
         run: |
           pixi run finddata --version
@@ -37,7 +37,7 @@ jobs:
           fetch-tags: true
           ref: ${{ github.ref }}
       - name: Setup Pixi
-        uses: prefix-dev/setup-pixi@v0.9.0
+        uses: prefix-dev/setup-pixi@v0.9.1
       - name: Build Conda package
         run: |
           pixi run build-conda
@@ -68,7 +68,7 @@ jobs:
           fetch-tags: true
           ref: ${{ github.ref }}
       - name: Setup Pixi
-        uses: prefix-dev/setup-pixi@v0.9.0
+        uses: prefix-dev/setup-pixi@v0.9.1
         with:
           pixi-version: v0.49.0
       - name: Download conda package artifact

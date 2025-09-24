@@ -874,8 +874,8 @@ packages:
   timestamp: 1755216353218
 - pypi: ./
   name: finddata
-  version: 0.12.0.dev4
-  sha256: 56627d72ae0d8f9837bebd2aec4bf505ad9154cc84a14357b34a97e9cdf01e99
+  version: 0.12.0.dev6
+  sha256: 8ade130d63e9e934a88e3a4a2a97d83b3035695fc66d74d872dd2a2c144b3805
   requires_dist:
   - urllib3>=2.2.3,<3
   requires_python: '>=3.9'

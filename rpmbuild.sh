@@ -16,36 +16,19 @@ if [ ! "$(command -v pixi)" ]; then
     exit 127
 fi
 
+VERSION_FROM_GIT=$(pixi run versioningit)
+
 # create the tarball
 echo "building sdist..."
+pixi run backup-toml || exit 127
+pixi run sync-version || exit 127
 pixi run build-sdist || exit 127
+pixi run reset-toml || exit 127
 
-TARBALL_SRC="finddata-$(pixi run versioningit).tar.gz" # created
-TARBALL_TGT="finddata-${VERSION}.tar.gz" # what we want
-# fixup the tarball
-echo "cleaning up tarball"
-rm -rf "python-finddata-${VERSION}"
-mkdir "python-finddata-${VERSION}"
-
-echo "unpacking ${TARBALL_SRC}"
-tar xzf "sdist/${TARBALL_SRC}" --strip 1 -C "python-finddata-${VERSION}" || exit 127
-rm "sdist/${TARBALL_SRC}"
-
-# set a fixed version number
-echo "modify the pyproject.toml"
-pixi run toml unset project.dynamic --toml-path python-finddata-"${VERSION}"/pyproject.toml || exit 127
-pixi run toml set project.version "${VERSION}" --toml-path python-finddata-"${VERSION}"/pyproject.toml || exit 127
-pixi run toml unset tool.versioningit --toml-path python-finddata-"${VERSION}"/pyproject.toml || exit 127
-pixi run toml unset tool.hatch.version --toml-path python-finddata-"${VERSION}"/pyproject.toml || exit 127
-pixi run toml unset tool.hatch.build.hooks.versioningit-onbuild --toml-path python-finddata-"${VERSION}"/pyproject.toml || exit 127
-# remove dependencies since rpm will handle them
-pixi run toml unset project.dependencies --toml-path python-finddata-"${VERSION}"/pyproject.toml || exit 127
-
-echo "create tarball with correct name"
-tar czf "${TARBALL_TGT}" "python-finddata-${VERSION}" || exit 127
-rm -rf "python-finddata-${VERSION}"
+TARBALL_SRC="finddata-${VERSION_FROM_GIT}.tar.gz" # created
 
 # setup rpm directories for building - renames the tarball
+echo "seting up rpm files"
 if [ -f "${TARBALL_TGT}" ]; then
     mkdir -p "${HOME}"/rpmbuild/SOURCES
     cp "${TARBALL_TGT}" "${HOME}/rpmbuild/SOURCES/${TARBALL_TGT}" || exit 127

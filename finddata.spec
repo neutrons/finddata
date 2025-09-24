@@ -6,7 +6,7 @@
 
 Summary: %{summary}
 Name: python-%{srcname}
-Version: 0.11.2
+Version: %{version}
 Release: %{release}%{?dist}
 Source: %{srcname}-%{version}.tar.gz
 License: MIT
@@ -27,7 +27,7 @@ Requires: python%{python3_pkgversion}
 Requires: python%{python3_pkgversion}-urllib3
 Requires: bash
 Requires: bash-completion
-#Requires: python{python3_pkgversion}-argcomplete
+Requires: python%{python3_pkgversion}-argcomplete
 %{?python_provide:%python_provide python%{python3_pkgversion}-%{srcname}}
 
 BuildRequires: python%{python3_pkgversion}-devel
@@ -39,7 +39,7 @@ Finddata uses ONCat to locate the full path of files on the NScD clusters.
 
 # unpack tarball and apply patchfile - add -v to see individual commands
 %prep
-%autosetup -p1
+%autosetup -p1 -n %{srcname}-%{version}
 
 %build
 %pyproject_wheel

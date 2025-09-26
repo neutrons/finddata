@@ -1,3 +1,0 @@
-include src/finddata finddata.bashcomplete README.md
-include src/finddata/cli.py
-include src/finddata/_version.py

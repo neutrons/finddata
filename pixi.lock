@@ -874,11 +874,10 @@ packages:
   timestamp: 1755216353218
 - pypi: ./
   name: finddata
-  version: 0.12.0.dev1
-  sha256: d46d02b8f1384d7786918a634269cd520b8d222971ca91aaa92d3cf76b1de19c
+  version: 0.12.0.dev5
+  sha256: d50a21832c89f5b8c2414d2b432d9955e6b9c1c96a3ffa3b318de0516e14d753
   requires_dist:
-  - toml>=0.10,<0.11
-  - urllib3>=2.5,<3
+  - urllib3>=2.2.3,<3
   requires_python: '>=3.9'
   editable: true
 - conda: https://conda.anaconda.org/conda-forge/noarch/h11-0.16.0-pyhd8ed1ab_0.conda

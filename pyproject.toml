@@ -10,8 +10,8 @@ requires-python = ">=3.9"
 license = { text = "MIT" }
 keywords = ["neutrons", "finddata", "ONCat"]
 readme = "README.md"
-# urllib3 handles h2 as an indirect dependency
-dependencies = ["toml>=0.10,<0.11", "urllib3>=2.5,<3"]
+# urllib3 handles h2 as an indirect dependency and enforces h2 >= 4.x.x for security (CVE-2025-57804)
+dependencies = ["urllib3>=2.2.3,<3"]
 
 [project.scripts]
 finddata = "finddata.cli:main"
@@ -138,8 +138,7 @@ versioningit = "*"
 
 [tool.pixi.package.run-dependencies]
 plot-publisher = ">=1.0,<2.0"
-toml = ">=0.10,<0.11"
-urllib3 = ">=2.5,<3"
+urllib3 = ">=2.2.3,<3"
 
 [tool.pixi.tasks]
 # PyPI

@@ -24,6 +24,14 @@ jobs:
       - name: Dependency check
         run: |
           pixi run audit-deps
+      - name: Test imports
+        run: |
+          # Test that finddata can be imported with plot_publisher available (conda package scenario)
+          pixi run python -c "import finddata; print('finddata imported successfully with plot_publisher')"
+          # Test that plotting functions are available
+          pixi run python -c "import finddata; assert hasattr(finddata, 'publish_plot'); assert hasattr(finddata, 'plot1d'); assert hasattr(finddata, 'plot_heatmap'); print('All plotting functions available')"
+          # Test basic functionality
+          pixi run finddata --version
         #- name: build pypi package
         #  run: |
         #    pixi run build-pypi
@@ -48,7 +56,7 @@ jobs:
         with:
           package-name: finddata
           local-channel: /tmp/local-channel
-          extra-channels: mantid-ornl neutrons/label/rc
+          extra-channels: mantid-ornl neutrons/label/rc neutrons
           extra-commands: pixi run python -c "import finddata"
       - name: Upload conda package as artifact
         uses: actions/upload-artifact@v4

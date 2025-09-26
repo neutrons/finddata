@@ -10,7 +10,6 @@ requires-python = ">=3.9"
 license = { text = "MIT" }
 keywords = ["neutrons", "finddata", "ONCat"]
 readme = "README.md"
-# urllib3 handles h2 as an indirect dependency and enforces h2 >= 4.x.x for security (CVE-2025-57804)
 dependencies = ["urllib3>=2.2.3,<3"]
 
 [project.scripts]
@@ -142,8 +141,8 @@ urllib3 = ">=2.2.3,<3"
 
 [tool.pixi.tasks]
 # PyPI
-build-sdist = { cmd = "hatch build sdist", description = "Build the source distribution (tar.gz)" }
-build-pypi = { cmd = "hatch build", description = "Build the package for PyPI" }
+build-sdist = { cmd = "hatch build -t sdist", description = "Build the source distribution (tar.gz)" }
+build-pypi = { cmd = "hatch build -t wheel", description = "Build the package for PyPI" }
 clean-pypi = { cmd = "rm -rf dist", description = "Clean the PyPI build artifacts" }
 publish-pypi = { cmd = "twine upload dist/*", description = "Publish the package to PyPI", depends-on = [
   "build-pypi",
@@ -151,21 +150,22 @@ publish-pypi = { cmd = "twine upload dist/*", description = "Publish the package
 # Conda
 build-conda-command = { cmd = "pixi build", description = "Build the conda package command" }
 build-conda = { description = "Build the conda package", depends-on = [
+  "backup-toml",
   "sync-version",
   "build-conda-command",
-  "reset-version",
+  "reset-toml",
 ] }
 clean-conda = { cmd = "rm finddata-*.conda", description = "Clean the conda build artifacts" }
 # MISC
 clean-all = { description = "Clean all build artifacts", depends-on = [
-  "reset-version",
+  "reset-toml",
   "clean-pypi",
   "clean-conda",
 ] }
 sync-version = { cmd = 'version=$(python -m versioningit); toml set tool.pixi.package.version "$version" --toml-path pyproject.toml', description = "Sync pyproject.toml version with Git version" }
-reset-version = { cmd = "toml set tool.pixi.package.version \"0.0.0\" --toml-path pyproject.toml", description = "Reset the package version to 0.0.0" }
-# ignore pillow error because it is only used by anaconda-client v1.13.0
-audit-deps = { cmd = "pip-audit --local -s osv --ignore-vuln=PYSEC-2025-61" }
+backup-toml = { cmd = "cp pyproject.toml pyproject.toml.bak", description = "Backup the pyproject.toml file" }
+reset-toml = { cmd = "cp pyproject.toml.bak pyproject.toml; rm pyproject.toml.bak", description = "Reset the pyproject.toml file to the original state" }
+audit-deps = { cmd = "pip-audit --local -s osv" }
 
 [tool.pixi.feature.package.dependencies]
 anaconda-client = ">=1.13.0,<2"

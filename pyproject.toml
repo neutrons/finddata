@@ -10,7 +10,7 @@ requires-python = ">=3.9"
 license = { text = "MIT" }
 keywords = ["neutrons", "finddata", "ONCat"]
 readme = "README.md"
-dependencies = ["urllib3>=2.2.3,<3"]
+dependencies = ["urllib3"] # let pypi and system packages figure out things
 
 [project.scripts]
 finddata = "finddata.cli:main"

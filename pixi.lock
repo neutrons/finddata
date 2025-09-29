@@ -869,9 +869,9 @@ packages:
 - pypi: ./
   name: finddata
   version: 0.12.0
-  sha256: 3adadaece582ff503606469e84089583a053e35296c8c7fc3455e9be592133e0
+  sha256: d8e219d855996792deee094799a4266bb9f0da9ff32882a1570134fc395321cf
   requires_dist:
-  - urllib3>=2.2.3,<3
+  - urllib3
   requires_python: '>=3.9'
   editable: true
 - conda: https://conda.anaconda.org/conda-forge/noarch/h11-0.16.0-pyhd8ed1ab_0.conda

@@ -1,8 +1,8 @@
-# finddata version
-try:
-    from ._version import __version__  # noqa: F401
-except ImportError:
-    __version__ = "unknown"
+# finddata version - from pacakge metadata
+from importlib import metadata
+
+__version__ = metadata.version("finddata")
+del metadata
 
 # Import publish_plot functions from external package if available
 # This maintains backward compatibility while removing local duplicate code

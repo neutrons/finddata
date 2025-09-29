@@ -27,4 +27,3 @@ RUN dnf install -y /home/builder/rpmbuild/RPMS/noarch/python3-finddata*.noarch.r
 
 # get the version number from it
 USER builder
-CMD finddata --version

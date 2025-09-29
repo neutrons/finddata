@@ -30,6 +30,7 @@ Requires: python%{python3_pkgversion}-urllib3
 Requires: bash
 Requires: bash-completion
 
+BuildRequires: python%{python3_pkgversion}-devel
 BuildRequires: python%{python3_pkgversion}-pip
 BuildRequires: python%{python3_pkgversion}-hatchling
 
@@ -39,6 +40,10 @@ Finddata uses ONCat to locate the full path of files on the NScD clusters.
 # unpack tarball and apply patchfile - add -v to see individual commands
 %prep
 %autosetup -p1 -n %{srcname}-%{version}
+
+# uncomment next two lines to find out more of the build requirements from pyproject.toml
+#generate_buildrequires
+#pyproject_buildrequires -t
 
 %build
 %pyproject_wheel

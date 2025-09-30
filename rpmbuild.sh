@@ -2,7 +2,7 @@
 SPECFILE="$(dirname "$(realpath "$0")")/finddata.spec"
 
 # get the version from the pyproject.toml file
-VERSION=$(pixi run python -c "from importlib import metadata;print(metadata.version('finddata'))")
+VERSION=$(grep ^version pyproject.toml  | cut -d " " -f 3 | sed 's/\"//g')
 echo "version in pyproject.toml is ${VERSION}"
 
 # create the tarball

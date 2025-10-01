@@ -869,7 +869,7 @@ packages:
 - pypi: ./
   name: finddata
   version: 0.12.0
-  sha256: d8e219d855996792deee094799a4266bb9f0da9ff32882a1570134fc395321cf
+  sha256: 37d612bbedabec8a58661bc5a42f52e5040ba5b9d160abb907dc16fdb9d0a0e9
   requires_dist:
   - urllib3
   requires_python: '>=3.9'

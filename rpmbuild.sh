@@ -9,7 +9,7 @@ echo "version in pyproject.toml is ${VERSION}"
 if command -v pixi >/dev/null 2>&1; then
     # this runs outside of docker where pixi exists
     echo "building sdist..."
-    pixi run build-sdist || exit 127
+    pixi run build-sdist || exit 1
 else
     # must be inside of docker
     echo "assuming sdist already exists"
@@ -19,14 +19,14 @@ fi
 TARBALL_SRC="finddata-${VERSION}.tar.gz" # created
 if [ ! -f dist/"${TARBALL_SRC}" ]; then
     echo "Failed to find source tarball: dist/${TARBALL_SRC}"
-    exit 127
+    exit 1
 fi
 mkdir -p "${HOME}"/rpmbuild/SOURCES
-cp dist/"${TARBALL_SRC}" "${HOME}"/rpmbuild/SOURCES/"${TARBALL_SRC}" || exit 127
+cp dist/"${TARBALL_SRC}" "${HOME}"/rpmbuild/SOURCES/"${TARBALL_SRC}" || exit 1
 
 # build the rpm and give instructions
 echo "building the rpm"
-rpmbuild -ba "${SPECFILE}" --define "version ${VERSION}" || exit 127
+rpmbuild -ba "${SPECFILE}" --define "version ${VERSION}" || exit 1
 
 # give people a hint on how to verify the rpm
 # shellcheck disable=SC1083

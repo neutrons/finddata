@@ -6,7 +6,7 @@ VERSION=$(grep ^version pyproject.toml  | cut -d " " -f 3 | sed 's/\"//g')
 echo "version in pyproject.toml is ${VERSION}"
 
 # create the source tarball
-if [ "$(command -v pixi)" ]; then
+if command -v pixi >/dev/null 2>&1; then
     # this runs outside of docker where pixi exists
     echo "building sdist..."
     pixi run build-sdist || exit 127

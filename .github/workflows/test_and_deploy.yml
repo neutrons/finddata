@@ -13,9 +13,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
-        with:
-          fetch-depth: 100
-          fetch-tags: true
       - name: Setup Pixi
         uses: prefix-dev/setup-pixi@v0.9.1
       - name: finddata version
@@ -53,9 +50,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
-        with:
-          fetch-depth: 100
-          fetch-tags: true
       - name: Setup Pixi
         uses: prefix-dev/setup-pixi@v0.9.1
       - name: Build Conda package
@@ -83,9 +77,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
-        with:
-          fetch-depth: 100
-          fetch-tags: true
       - name: Setup Pixi
         uses: prefix-dev/setup-pixi@v0.9.1
         with:

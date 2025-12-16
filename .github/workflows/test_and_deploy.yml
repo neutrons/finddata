@@ -14,7 +14,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
       - name: Setup Pixi
-        uses: prefix-dev/setup-pixi@v0.9.1
+        uses: prefix-dev/setup-pixi@v0.9.3
+        with:
+          pixi-version: v0.50.2
       - name: finddata version
         run: |
           pixi run finddata --version
@@ -23,10 +25,12 @@ jobs:
           pixi run audit-deps
       - name: Test imports
         run: |
-          # Test that finddata can be imported with plot_publisher available (conda package scenario)
-          pixi run python -c "import finddata; print('finddata imported successfully with plot_publisher')"
+          # Test that finddata can be imported with plot_publisher available
+          pixi run python -c 'import finddata; print("finddata imported successfully with plot_publisher")'
           # Test that plotting functions are available
-          pixi run python -c "import finddata; assert hasattr(finddata, 'publish_plot'); assert hasattr(finddata, 'plot1d'); assert hasattr(finddata, 'plot_heatmap'); print('All plotting functions available')"
+          pixi run python -c 'import finddata; assert hasattr(finddata, "publish_plot")'
+          pixi run python -c 'import finddata; assert hasattr(finddata, "plot1d")'
+          pixi run python -c 'import finddata; assert hasattr(finddata, "plot_heatmap")'
           # Test basic functionality
           pixi run finddata --version
         #- name: build pypi package
@@ -38,7 +42,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
       - name: Setup pixi
-        uses: prefix-dev/setup-pixi@v0.9.1
+        uses: prefix-dev/setup-pixi@v0.9.3
+        with:
+          pixi-version: v0.50.2
       - name: Build sdist
         run: pixi run build-sdist
       - name: Build RPM inside of docker
@@ -51,7 +57,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
       - name: Setup Pixi
-        uses: prefix-dev/setup-pixi@v0.9.1
+        uses: prefix-dev/setup-pixi@v0.9.3
+        with:
+          pixi-version: v0.50.2
       - name: Build Conda package
         run: |
           pixi run build-conda
@@ -78,9 +86,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
       - name: Setup Pixi
-        uses: prefix-dev/setup-pixi@v0.9.1
+        uses: prefix-dev/setup-pixi@v0.9.3
         with:
-          pixi-version: v0.49.0
+          pixi-version: v0.50.2
       - name: Download conda package artifact
         uses: actions/download-artifact@v5
         with:

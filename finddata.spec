@@ -17,7 +17,7 @@ BuildArch: noarch
 Vendor: Pete Peterson <petersonpf@ornl.gov>
 Url: https://github.com/neutrons/finddata
 Obsoletes: python3-finddata < 0.10
-Obsoletes: python3.11-finddata < 0.12
+Obsoletes: python3.11-finddata < 0.13
 
 %description
 Finddata uses ONCat to locate the full path of files on the NScD clusters.

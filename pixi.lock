@@ -7,6 +7,8 @@ environments:
     - url: https://conda.anaconda.org/neutrons/
     indexes:
     - https://pypi.org/simple
+    options:
+      pypi-prerelease-mode: if-necessary-or-explicit
     packages:
       linux-64:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/_libgcc_mutex-0.1-conda_forge.tar.bz2
@@ -987,11 +989,10 @@ packages:
 - pypi: ./
   name: finddata
   version: 0.13.0
-  sha256: 485f50843c07d33938f4e849225cfa2a0dd099fde90ad0bef82154b1cb242d3a
+  sha256: 0a866045deee8e67ad5ab6d8f38897ac30b288496c56d3611c93a7957fd501bc
   requires_dist:
   - urllib3
   requires_python: '>=3.9'
-  editable: true
 - conda: https://conda.anaconda.org/conda-forge/noarch/h11-0.16.0-pyhd8ed1ab_0.conda
   sha256: f64b68148c478c3bfc8f8d519541de7d2616bf59d44485a5271041d40c061887
   md5: 4b69232755285701bc86a5afe4d9933a

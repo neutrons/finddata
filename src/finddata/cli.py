@@ -169,18 +169,23 @@ def getFileLoc(facility, instrument, runs):
 
 
 def main():
+    # find what instruments are at the facilities
     FACILITY = {}
     for facility in ["HFIR", "SNS"]:
         instruments = getInstruments(facility, withLower=True)
         for instrument in instruments:
             FACILITY[instrument] = facility
+    # create combined list for the command line
+    instr_allowed = list(FACILITY.keys())
+    # sort it for the TUI
+    instr_allowed.sort()
 
     # set up optparse
     import argparse  # for command line options
 
     parser = argparse.ArgumentParser(description="Find data files using ICAT")
 
-    parser.add_argument("inst", nargs="?", help="Specify the instrument name", choices=FACILITY.keys())
+    parser.add_argument("inst", nargs="?", help="Specify the instrument name", choices=instr_allowed)
     parser.add_argument("runs", nargs="*", help="Specify the run numbers")
     parser.add_argument(
         "-l",
@@ -191,7 +196,12 @@ def main():
         help="Specify the log level (default=%(default)s)",
     )
     parser.add_argument(
-        "-v", "--version", dest="version", action="store_true", help="Print the version information and exit"
+        "-v",
+        "--version",
+        dest="version",
+        action="store_true",
+        help="Print the version information and exit",
+        default=argparse.SUPPRESS,
     )
     parser.add_argument("--getproposal", dest="getproposal", action="store_true", help="Show the proposal for the run")
     parser.add_argument("--listruns", dest="listruns", help="List all of the runs in a proposal")
@@ -203,6 +213,13 @@ def main():
         argcomplete.autocomplete(parser)
     except ImportError:
         pass  # argcomplete is optional
+
+    try:
+        from argparse_tui import add_tui_argument
+
+        add_tui_argument(parser)
+    except ImportError:
+        pass  # tui is optional
 
     # parse the command line
     options = parser.parse_args()
@@ -216,7 +233,8 @@ def main():
     logging.debug("options " + str(options))
 
     # if they want the version just give it back and exit
-    if options.version:
+    # argparse.SUPPRESS skips adding the option unless it is specified
+    if "version" in options and options.version:
         print("finddata version " + __version__)
         sys.exit(0)
 

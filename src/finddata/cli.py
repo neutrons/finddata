@@ -198,10 +198,9 @@ def main():
     parser.add_argument(
         "-v",
         "--version",
-        dest="version",
-        action="store_true",
+        action="version",
         help="Print the version information and exit",
-        default=argparse.SUPPRESS,
+        version=f"finddata {__version__}",
     )
     parser.add_argument("--getproposal", dest="getproposal", action="store_true", help="Show the proposal for the run")
     parser.add_argument("--listruns", dest="listruns", help="List all of the runs in a proposal")
@@ -231,12 +230,6 @@ def main():
 
     # log the options and arguments
     logging.debug("options " + str(options))
-
-    # if they want the version just give it back and exit
-    # argparse.SUPPRESS skips adding the option unless it is specified
-    if "version" in options and options.version:
-        print("finddata version " + __version__)
-        sys.exit(0)
 
     if not options.inst:
         parser.error("Failed to specify an instrument")

@@ -5,7 +5,7 @@ authors = [
   { name = "Chen Zhang", email = "zhangc@ornl.gov" },
 ]
 description = "A program to find data files using ONCat"
-version = "0.13.0"
+version = "0.14.0.dev1"
 requires-python = ">=3.9"
 license = { text = "MIT" }
 keywords = ["neutrons", "finddata", "ONCat"]
@@ -91,6 +91,7 @@ brotli = ">=1.2.0"
 [tool.pixi.pypi-dependencies]
 finddata = { path = ".", editable = true }
 ty = ">=0.0.1a8,<0.0.1a9"
+argparse-tui = ">=0.3.1,<0.4"              # optional
 
 [tool.pixi.package]
 name = "finddata"

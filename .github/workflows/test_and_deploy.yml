@@ -23,12 +23,8 @@ jobs:
           pixi run audit-deps
       - name: Test imports
         run: |
-          # Test that finddata can be imported with plot_publisher available
-          pixi run python -c 'import finddata; print("finddata imported successfully with plot_publisher")'
-          # Test that plotting functions are available
-          pixi run python -c 'import finddata; assert hasattr(finddata, "publish_plot")'
-          pixi run python -c 'import finddata; assert hasattr(finddata, "plot1d")'
-          pixi run python -c 'import finddata; assert hasattr(finddata, "plot_heatmap")'
+          # Test that finddata can be imported
+          pixi run python -c 'import finddata; print("finddata imported successfully")'
           # Test basic functionality
           pixi run finddata --version
         #- name: build pypi package

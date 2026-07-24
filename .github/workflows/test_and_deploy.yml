@@ -49,6 +49,10 @@ jobs:
           docker run -t rpmbuilder finddata --version
   package:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read # for actions/checkout
+      security-events: write # for github/codeql-action/upload-sarif to upload results
+      actions: read # for upload-sarif to read run status (private repos)
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -59,13 +63,27 @@ jobs:
           pixi run build-conda
           mkdir -p /tmp/local-channel/linux-64
           cp *.conda /tmp/local-channel/linux-64
-      - name: Verify conda package
-        uses: neutrons/conda-verify@main
+      # pkg-verify requires a conda env that already has the package
+      # installed (and micromamba on PATH); pkg-install sets both up.
+      - name: Install built conda package
+        id: install
+        uses: neutrons/gh-actions/pkg-install@eb7a7c6fcfd0cda1a7b238329afc0afd09a4f4af # v2
         with:
           package-name: finddata
           local-channel: /tmp/local-channel
           extra-channels: mantid-ornl neutrons/label/rc neutrons
-          extra-commands: pixi run python -c "import finddata"
+      - name: Verify conda package
+        uses: neutrons/gh-actions/pkg-verify@eb7a7c6fcfd0cda1a7b238329afc0afd09a4f4af # v2
+        with:
+          package-name: finddata
+          module-name: finddata
+          conda-env-name: ${{ steps.install.outputs.conda-env }}
+      # Audit the dependencies of the conda package we just installed. SARIF
+      # results are uploaded to GitHub code scanning by the grype action.
+      - name: Scan installed environment with Grype
+        uses: neutrons/gh-actions/grype@eb7a7c6fcfd0cda1a7b238329afc0afd09a4f4af # v2
+        with:
+          path: ${{ steps.install.outputs.conda-install-dir }}
       - name: Upload conda package as artifact
         uses: actions/upload-artifact@v6
         if: startsWith(github.ref, 'refs/tags/v')

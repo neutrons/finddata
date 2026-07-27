@@ -42,7 +42,17 @@ jobs:
       - name: Build RPM inside of docker
         run: |
           docker build --tag rpmbuilder -f Dockerfile .
-          docker run -t rpmbuilder finddata --version
+          docker run -t --name rpmbuilder-container rpmbuilder finddata --version
+          mkdir -p dist/rpm
+          docker cp rpmbuilder-container:/home/builder/rpmbuild/SRPMS/. dist/rpm/
+          docker cp rpmbuilder-container:/home/builder/rpmbuild/RPMS/noarch/. dist/rpm/
+      - name: Upload RPM artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: artifact-rpm-package
+          path: |
+            dist/rpm/python-finddata*src.rpm
+            dist/rpm/python3-finddata*.rpm
   package:
     runs-on: ubuntu-24.04
     permissions:
